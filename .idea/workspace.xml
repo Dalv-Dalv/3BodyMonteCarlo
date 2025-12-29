@@ -4,14 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="BackendCodeEditorMiscSettings">
-    <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
-    <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
-    <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
-    <option name="/Default/Housekeeping/OptionsDialog/SelectedPageId/@EntryValue" value="CppFormatterOtherPage" type="string" />
-    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="4" type="long" />
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="7" type="long" />
     <option name="/Default/Environment/UserInterface/HierarchyView/ViewStyle/@EntryValue" value="SuperTypes" type="string" />
-    <option name="/Default/Housekeeping/Search/HighlightUsagesHintUsed/@EntryValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/OptionsDialog/SelectedPageId/@EntryValue" value="CppFormatterOtherPage" type="string" />
     <option name="/Default/Housekeeping/RefactoringsMru/RenameRefactoring/DoSearchForTextInStrings/@EntryValue" value="true" type="bool" />
+    <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
   </component>
   <component name="CMakePresetLoader">{
   &quot;useNewFormat&quot;: true
@@ -24,8 +23,8 @@
   </component>
   <component name="CMakeRunConfigurationManager">
     <generated>
-      <config projectName="SlimeMold" targetName="glad" />
-      <config projectName="SlimeMold" targetName="SlimeMold" />
+      <config projectName="ThreeBody" targetName="glad" />
+      <config projectName="ThreeBody" targetName="ThreeBody" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -35,11 +34,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dfe77bcc-4f66-495f-82e1-a584774e14f1" name="Changes" comment="auto move shaders">
-      <change afterPath="$PROJECT_DIR$/Utils/Random.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Utils/Random.h" afterDir="false" />
+    <list default="true" id="dfe77bcc-4f66-495f-82e1-a584774e14f1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,7 +66,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Dalv-Dalv/3BodyMonteCarlo.git&quot;,
-    &quot;accountId&quot;: &quot;f132e674-2df6-4ea3-bc6b-54658e8a0fb4&quot;
+    &quot;accountId&quot;: &quot;dd7796d7-71bc-4fd4-a0b0-fb95d069a326&quot;
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
@@ -83,7 +80,6 @@
     <setting file="file://$PROJECT_DIR$/main.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/glad.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/glad.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/../../../School/University/Classes/Semestrul2/SD/BitonicSort/Implementations/GLSLCompute.cpp" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectApplicationVersion">
     <option name="ide" value="CLion" />
@@ -103,6 +99,7 @@
   &quot;keyToString&quot;: {
     &quot;CMake Application.BitonicSort.executor&quot;: &quot;Run&quot;,
     &quot;CMake Application.SlimeMold.executor&quot;: &quot;Run&quot;,
+    &quot;CMake Application.ThreeBody.executor&quot;: &quot;Run&quot;,
     &quot;CMake Application.Unnamed.executor&quot;: &quot;Run&quot;,
     &quot;CMake Debug.BitonicSort.executor&quot;: &quot;Debug&quot;,
     &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
@@ -117,7 +114,7 @@
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Dalv/School/University/Classes/Semestrul3/PS/Proiect2/3Body&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Dalv/School/University/Classes/Semestrul3/PS/Proiect2/3BodyMonteCarlo&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -135,33 +132,38 @@
       <recent name="C:\Dalv\School\University\Classes\Semestrul2\SD\BitonicSort\src" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\stefa\CLionProjects\3BodyMonteCarlo\Utils" />
       <recent name="C:\Dalv\Productivitiy\CodeProjects\Slime Mold OpenGL\libs\include\GLFW" />
       <recent name="C:\Dalv\Productivitiy\CodeProjects\Slime Mold OpenGL\imgui\backends" />
       <recent name="C:\Dalv\Productivitiy\CodeProjects\Slime Mold OpenGL\imgui" />
       <recent name="C:\Dalv\Productivitiy\CodeProjects\Slime Mold OpenGL\libs\mingw" />
+      <recent name="C:\Dalv\School\University\Classes\Semestrul2\SD\BitonicSort\Classes" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.SlimeMold">
-    <configuration name="SlimeMold" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SlimeMold" TARGET_NAME="SlimeMold" CONFIG_NAME="Debug-MinGW" RUN_TARGET_PROJECT_NAME="SlimeMold" RUN_TARGET_NAME="SlimeMold">
+  <component name="RunManager" selected="CMake Application.ThreeBody">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ThreeBody" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ThreeBody" TARGET_NAME="ThreeBody" CONFIG_NAME="Debug-MinGW" RUN_TARGET_PROJECT_NAME="ThreeBody" RUN_TARGET_NAME="ThreeBody">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Unnamed" type="CMakeRunConfiguration" factoryName="Application" nameIsGenerated="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug-MinGW" RUN_TARGET_PROJECT_NAME="SlimeMold" RUN_TARGET_NAME="BitonicSort" EXPLICIT_BUILD_TARGET_NAME="all">
+    <configuration name="Unnamed" type="CMakeRunConfiguration" factoryName="Application" nameIsGenerated="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug-MinGW" RUN_TARGET_PROJECT_NAME="ThreeBody" RUN_TARGET_NAME="BitonicSort" EXPLICIT_BUILD_TARGET_NAME="all">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="glad" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SlimeMold" TARGET_NAME="glad" CONFIG_NAME="Debug-MinGW">
+    <configuration name="glad" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ThreeBody" TARGET_NAME="glad" CONFIG_NAME="Debug-MinGW">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <list>
-      <item itemvalue="CMake Application.SlimeMold" />
       <item itemvalue="CMake Application.Unnamed" />
       <item itemvalue="CMake Application.glad" />
+      <item itemvalue="CMake Application.ThreeBody" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -229,20 +231,9 @@
       <workItem from="1746022113459" duration="69000" />
       <workItem from="1767006058635" duration="348000" />
       <workItem from="1767006476595" duration="1638000" />
-      <workItem from="1767008695125" duration="381000" />
-      <workItem from="1767009389459" duration="721000" />
-      <workItem from="1767010296931" duration="166000" />
-      <workItem from="1767010479327" duration="483000" />
+      <workItem from="1767008505220" duration="552000" />
+      <workItem from="1767009342311" duration="468000" />
     </task>
-    <task id="LOCAL-00001" summary="auto move shaders">
-      <option name="closed" value="true" />
-      <created>1767008895001</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1767008895001</updated>
-    </task>
-    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -253,22 +244,18 @@
     <isAutomaticFoundErrors value="true" />
     <isAutomaticReloadCMake value="true" />
   </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="auto move shaders" />
-    <option name="LAST_COMMIT_MESSAGE" value="auto move shaders" />
-  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/Implementations/SlimeMoldGL.cpp</url>
-          <line>55</line>
-          <option name="timeStamp" value="5" />
+          <url>file://$PROJECT_DIR$/Implementations/ThreeBodyGL.cpp</url>
+          <line>90</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/Implementations/SlimeMoldGL.cpp</url>
-          <line>9</line>
-          <option name="timeStamp" value="6" />
+          <url>file://$PROJECT_DIR$/Implementations/ThreeBodyGL.cpp</url>
+          <line>55</line>
+          <option name="timeStamp" value="5" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

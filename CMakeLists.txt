@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.30)
-project(SlimeMold LANGUAGES C CXX)
+project(ThreeBody LANGUAGES C CXX)
 
 
 # Include directories for GLFW, CUDA, and GLAD
@@ -14,9 +14,9 @@ add_library(glad STATIC src/glad.c)
 set_target_properties(glad PROPERTIES LINKER_LANGUAGE C)
 
 # Create the executable
-add_executable(SlimeMold main.cpp
-        Implementations/SlimeMoldGL.cpp
-        Implementations/SlimeMoldGL.h
+add_executable(ThreeBody main.cpp
+        Implementations/ThreeBodyGL.cpp
+        Implementations/ThreeBodyGL.h
         include/stb_image_write.h
         Utils/Random.cpp
         Utils/Random.h
@@ -33,11 +33,13 @@ add_executable(SlimeMold main.cpp
 )
 
 # Link GLAD and other libraries
-target_link_libraries(SlimeMold PRIVATE glad glfw3 opengl32
+target_link_libraries(ThreeBody PRIVATE glad glfw3 opengl32
         kernel32 user32 gdi32 winspool shell32 ole32 oleaut32 uuid comdlg32 advapi32)
-add_custom_command(TARGET SlimeMold POST_BUILD
+
+
+add_custom_command(TARGET ThreeBody POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/Shaders
-        $<TARGET_FILE_DIR:SlimeMold>/Shaders
+        $<TARGET_FILE_DIR:ThreeBody>/Shaders
 )
-target_include_directories(SlimeMold PRIVATE imgui imgui/backends)
+target_include_directories(ThreeBody PRIVATE imgui imgui/backends)

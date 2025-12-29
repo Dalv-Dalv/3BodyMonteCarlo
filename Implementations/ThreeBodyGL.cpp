@@ -1,4 +1,4 @@
-#include "SlimeMoldGL.h"
+#include "ThreeBodyGL.h"
 
 #include <fstream>
 #include <iostream>
@@ -28,7 +28,7 @@ void randomPointInUnitCircle(float& x, float& y) {
 }
 
 
-SlimeMoldGL::SlimeMoldGL(int screenWidth, int screenHeight, bool fullScreen)
+ThreeBodyGL::ThreeBodyGL(int screenWidth, int screenHeight, bool fullScreen)
 	: screenWidth(screenWidth), screenHeight(screenHeight) {
 	glfwInit();
 
@@ -61,7 +61,7 @@ SlimeMoldGL::SlimeMoldGL(int screenWidth, int screenHeight, bool fullScreen)
 	std::cout << "GL Renderer: " << glGetString(GL_RENDERER) << std::endl;
 	std::cout << "GL Vendor: " << glGetString(GL_VENDOR) << std::endl;
 }
-SlimeMoldGL::~SlimeMoldGL() {
+ThreeBodyGL::~ThreeBodyGL() {
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }
@@ -69,7 +69,7 @@ SlimeMoldGL::~SlimeMoldGL() {
 
 
 
-void SlimeMoldGL::Animate(int width, int height) {
+void ThreeBodyGL::Animate(int width, int height) {
 	std::cout << "Start Animating" << std::endl;
 	struct Agent {
 		float posx, posy;
@@ -194,7 +194,7 @@ void SlimeMoldGL::Animate(int width, int height) {
 	ImGui::DestroyContext();
 }
 
-GLuint SlimeMoldGL::LoadShader(GLenum type, const char* path) {
+GLuint ThreeBodyGL::LoadShader(GLenum type, const char* path) {
 	std::ifstream file(path);
 	std::stringstream buffer;
 	buffer << file.rdbuf();
@@ -217,7 +217,7 @@ GLuint SlimeMoldGL::LoadShader(GLenum type, const char* path) {
 	return shader;
 }
 
-GLuint SlimeMoldGL::CreateComputeProgram(const char* shaderPath) {
+GLuint ThreeBodyGL::CreateComputeProgram(const char* shaderPath) {
 	GLuint computeShader = LoadShader(GL_COMPUTE_SHADER, shaderPath);
 	GLuint program = glCreateProgram();
 	glAttachShader(program, computeShader);
@@ -238,7 +238,7 @@ GLuint SlimeMoldGL::CreateComputeProgram(const char* shaderPath) {
 	return program;
 }
 
-GLuint SlimeMoldGL::CreateShaderProgram(const char* vertexPath, const char* fragmentPath) {
+GLuint ThreeBodyGL::CreateShaderProgram(const char* vertexPath, const char* fragmentPath) {
 	GLuint vertexShader = LoadShader(GL_VERTEX_SHADER, vertexPath);
 	GLuint fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fragmentPath);
 
@@ -263,7 +263,7 @@ GLuint SlimeMoldGL::CreateShaderProgram(const char* vertexPath, const char* frag
 }
 
 
-void SlimeMoldGL::SaveTexture(GLuint textureID, int width, int height, const char* filename) {
+void ThreeBodyGL::SaveTexture(GLuint textureID, int width, int height, const char* filename) {
 	// Bind texture
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
@@ -288,9 +288,9 @@ void SlimeMoldGL::SaveTexture(GLuint textureID, int width, int height, const cha
 }
 
 
-void SlimeMoldGL::FramebufferSizeCallback(GLFWwindow* window, int width, int height) { glViewport(0, 0, width, height); }
+void ThreeBodyGL::FramebufferSizeCallback(GLFWwindow* window, int width, int height) { glViewport(0, 0, width, height); }
 
-GLuint SlimeMoldGL::GetFullscreenQuad() {
+GLuint ThreeBodyGL::GetFullscreenQuad() {
 	GLfloat quadVertices[] = {
 		// positions        // texCoords
 		-1.0f,  1.0f,      0.0f, 1.0f,
