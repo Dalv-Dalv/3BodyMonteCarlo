@@ -70,43 +70,61 @@ ThreeBodyGL::~ThreeBodyGL() {
 
 
 void ThreeBodyGL::Animate(int width, int height) {
-	std::cout << "Start Animating" << std::endl;
-	struct Agent {
-		float posx, posy;
-		float angle;
+	struct Body {
+		float x, y, vx, vy;
+		float mass, r, g, b;
 	};
 
-	GLuint slimeTexture;
-	glGenTextures(1, &slimeTexture);
-	glBindTexture(GL_TEXTURE_2D, slimeTexture);
+	struct Simulation {
+		Body bodies[3];  // 3 * 32 bytes = 96 bytes
+		int status;      // 4 bytes (1 = stabil, 0 = coliziune/expulzat)
+		float padding[3];// 12 bytes padding
+	};
+
+
+	std::cout << "Start Animating" << std::endl;
+	GLuint visualizationTexture;
+	glGenTextures(1, &visualizationTexture);
+	glBindTexture(GL_TEXTURE_2D, visualizationTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	GLuint agentBuffer;
-	const int AGENT_COUNT = 100000;
-	int sl_timeStep = UIWrapper::Get_TimeStep();
-	std::vector<Agent> agents(AGENT_COUNT);
-	for(int i = 0; i < AGENT_COUNT; i++) {
-		float t = static_cast<float>(i) / static_cast<float>(AGENT_COUNT);
-		randomPointInUnitCircle(agents[i].posx, agents[i].posy);
-		agents[i].angle = std::atan2(-agents[i].posy, -agents[i].posx);
-		agents[i].posx *= std::min(width, height) / 2 - 300;
-		agents[i].posy *= std::min(width, height) / 2 - 300;
-		agents[i].posx += width / 2;
-		agents[i].posy += height / 2;
+	const int SIM_COUNT = 10000;
+	std::vector<Simulation> simulations(SIM_COUNT);
+	// Parametrii figura 8 (solutie stabila)
+	float px = 0.97000436;
+	float py = -0.24308753;
+	float vx = 0.466203685;
+	float vy = 0.43236573;
+	for(int i = 0; i < SIM_COUNT; i++) {
+		simulations[i].status = 1;
+		simulations[i].bodies[0] = {px, py, 0, 1.0f,  vx, vy, 0, 0};
+		simulations[i].bodies[1] = {-px, -py, 0, 1.0f, vx, vy, 0, 0};
+		simulations[i].bodies[2] = {0, 0, 0, 1.0f, -2*vx, -2*vy, 0, 0};
+
+		// Monte Carlo
+		float noiseScale = 0.05f;
+
+		// STEFAN TODO: Replace with new RNG
+		for(int b=0; b<3; b++) {
+			simulations[i].bodies[b].x += (dist(rng) * 2.0f - 1.0f) * noiseScale;
+			simulations[i].bodies[b].y += (dist(rng) * 2.0f - 1.0f) * noiseScale;
+		}
 	}
-	glGenBuffers(1, &agentBuffer);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, agentBuffer);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Agent) * agents.size(), agents.data(), GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, agentBuffer); // Binding 0 to match GLSL
+
+	GLuint simBuffer;
+	glGenBuffers(1, &simBuffer);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, simBuffer);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Simulation) * simulations.size(), simulations.data(), GL_DYNAMIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, simBuffer); // Binding 0 to match GLSL
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	GLuint computeProgram = CreateComputeProgram("Shaders/slimeMold.comp");
+		GLuint computeProgram = CreateComputeProgram("Shaders/slimeMold.comp");
 	glUseProgram(computeProgram);
 	glUniform1i(glGetUniformLocation(computeProgram, "width"), width);
 	glUniform1i(glGetUniformLocation(computeProgram, "height"), height);
-	glUniform1i(glGetUniformLocation(computeProgram, "agentsCount"), AGENT_COUNT);
+	glUniform1i(glGetUniformLocation(computeProgram, "agentsCount"), SIM_COUNT);
 	int compTimeLoc = glGetUniformLocation(computeProgram, "time");
 	int compDeltaTimeLoc = glGetUniformLocation(computeProgram, "deltaTime");
 	int sl_trailWeightLoc = glGetUniformLocation(computeProgram, "trailWeight");
@@ -136,6 +154,7 @@ void ThreeBodyGL::Animate(int width, int height) {
 
 	float prevTime = 0;
 	float deltaTime = 0;
+	int sl_timeStep = UIWrapper::Get_TimeStep();
 	while(!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT);
 		float currentTime = glfwGetTime();
@@ -154,9 +173,9 @@ void ThreeBodyGL::Animate(int width, int height) {
 			glUniform1f(sl_sensorAngleSpacingLoc, UIWrapper::Get_SensorAngleSpacing());
 			glUniform1f(sl_sensorDistOffsetLoc, UIWrapper::Get_SensorDistOffset());
 
-			glBindImageTexture(0, slimeTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, agentBuffer);
-			glDispatchCompute((AGENT_COUNT + 15) / 16, 1, 1);
+			glBindImageTexture(0, visualizationTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, simBuffer);
+			glDispatchCompute((SIM_COUNT + 15) / 16, 1, 1);
 
 
 			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
@@ -168,7 +187,7 @@ void ThreeBodyGL::Animate(int width, int height) {
 			glUniform1f(sl_diffusionRateLoc, UIWrapper::Get_DiffusionRate());
 			glUniform1f(sl_decayRateLoc, UIWrapper::Get_DecayRate());
 
-			glBindImageTexture(0, slimeTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+			glBindImageTexture(0, visualizationTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 			glDispatchCompute((width + 15) / 16, (height + 15) / 16, 1);
 
 			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
@@ -177,7 +196,7 @@ void ThreeBodyGL::Animate(int width, int height) {
 		glUseProgram(fragmentShaderProgram);
 		glUniform1f(fragTimeLoc, currentTime);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, slimeTexture);
+		glBindTexture(GL_TEXTURE_2D, visualizationTexture);
 		glUniform1i(fragTextureLoc, 0);
 
 		glBindVertexArray(fullscreenQuad);
