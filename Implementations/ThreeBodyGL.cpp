@@ -10,22 +10,11 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-#include <random>
-
-
+#include "../Utils/Random.h"
 #include "../include/stb_image_write.h"
 #include "UIWrapper.h"
 
-std::mt19937 rng(std::random_device{}());
-std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-void randomPointInUnitCircle(float& x, float& y) {
-	float angle = 2.0f * M_PI * dist(rng);
-	float radius = std::sqrt(dist(rng));
-
-	x = radius * std::cos(angle);
-	y = radius * std::sin(angle);
-}
 
 
 ThreeBodyGL::ThreeBodyGL(int screenWidth, int screenHeight, bool fullScreen)
@@ -79,11 +68,17 @@ void ThreeBodyGL::Animate(int width, int height) {
 		float padding[3];// 12 bytes padding
 	};
 
+	static_assert(sizeof(Simulation) % 16 == 0);
 
 	std::cout << "Start Animating" << std::endl;
-	GLuint visualizationTexture;
-	glGenTextures(1, &visualizationTexture);
-	glBindTexture(GL_TEXTURE_2D, visualizationTexture);
+	struct Agent {
+		float posx, posy;
+		float angle;
+	};
+
+	GLuint slimeTexture;
+	glGenTextures(1, &slimeTexture);
+	glBindTexture(GL_TEXTURE_2D, slimeTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -106,8 +101,8 @@ void ThreeBodyGL::Animate(int width, int height) {
 
 		// STEFAN TODO: Replace with new RNG
 		for(int b=0; b<3; b++) {
-			simulations[i].bodies[b].x += (dist(rng) * 2.0f - 1.0f) * noiseScale;
-			simulations[i].bodies[b].y += (dist(rng) * 2.0f - 1.0f) * noiseScale;
+			simulations[i].bodies[b].x += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
+			simulations[i].bodies[b].y += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
 		}
 	}
 

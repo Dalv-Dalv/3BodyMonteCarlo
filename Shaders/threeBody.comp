@@ -32,9 +32,34 @@ void main() {
     // Daca simularea a esuat deja, nu mai calculam nimic
     if (sims[idx].status == 0) return;
 
-    vec2 pos0 = sims[idx].bodies[0].pos;
-    vec2 pos1 = sims[idx].bodies[1].pos;
-    vec2 pos2 = sims[idx].bodies[2].pos;
+    vec2 pos0 = simulations[idx].bodies[0].pos;
+    vec2 pos1 = simulations[idx].bodies[1].pos;
+    vec2 pos2 = simulations[idx].bodies[2].pos;
+
+    vec2 vel0 = simulations[idx].bodies[0].vel;
+    vec2 vel1 = simulations[idx].bodies[1].vel;
+    vec2 vel2 = simulations[idx].bodies[2].vel;
+
+    vec2 m0 = simulations[idx].bodies[0].mass;
+    vec2 m1 = simulations[idx].bodies[1].mass;
+    vec2 m2 = simulations[idx].bodies[2].mass;
+
+    vel0+=G*deltaTime*m1/dot((pos1-pos0),(pos1-pos0))*normalize(pos1-pos0);
+    vel0+=G*deltaTime*m2/dot((pos2-pos0),(pos2-pos0))*normalize(pos2-pos0);
+
+    vel1+=G*deltaTime*m0/dot((pos0-pos1),(pos0-pos1))*normalize(pos0-pos1);
+    vel1+=G*deltaTime*m2/dot((pos2-pos1),(pos2-pos1))*normalize(pos2-pos1);
+
+    vel2+=G*deltaTime*m0/dot((pos0-pos2),(pos0-pos2))*normalize(pos0-pos2);
+    vel2+=G*deltaTime*m1/dot((pos1-pos2),(pos1-pos2))*normalize(pos1-pos2);
+
+    simulations[idx].bodies[0].vel = vel0;
+    simulations[idx].bodies[1].vel = vel1;
+    simulations[idx].bodies[2].vel = vel2;
+
+    simulations[idx].bodies[0].pos += vel0 * deltaTime;
+    simulations[idx].bodies[1].pos += vel1 * deltaTime;
+    simulations[idx].bodies[2].pos += vel2 * deltaTime;
 
     imageStore(visualizationTexture, sims[idx].bodies[0].pos, sims[idx].bodies[0].col);
     imageStore(visualizationTexture, sims[idx].bodies[1].pos, sims[idx].bodies[1].col);
