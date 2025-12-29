@@ -35,9 +35,9 @@ target_link_libraries(ThreeBody PRIVATE glad glfw3 opengl32
         kernel32 user32 gdi32 winspool shell32 ole32 oleaut32 uuid comdlg32 advapi32)
 
 
-add_custom_command(TARGET SlimeMold POST_BUILD
+add_custom_command(TARGET ThreeBody POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/Shaders
-        $<TARGET_FILE_DIR:SlimeMold>/Shaders
+        $<TARGET_FILE_DIR:ThreeBody>/Shaders
 )
 target_include_directories(ThreeBody PRIVATE imgui imgui/backends)
