@@ -32,6 +32,8 @@ void main() {
     // Daca simularea a esuat deja, nu mai calculam nimic
     if (sims[idx].status == 0) return;
 
+
+
     vec2 pos0 = simulations[idx].bodies[0].pos;
     vec2 pos1 = simulations[idx].bodies[1].pos;
     vec2 pos2 = simulations[idx].bodies[2].pos;
@@ -43,6 +45,19 @@ void main() {
     vec2 m0 = simulations[idx].bodies[0].mass;
     vec2 m1 = simulations[idx].bodies[1].mass;
     vec2 m2 = simulations[idx].bodies[2].mass;
+
+    if((pos0-pos1).length()<1){
+        simulations[idx].status=0;
+        return;
+    }
+    if((pos1-pos2).length()<1){
+        simulations[idx].status=0;
+        return;
+    }
+    if((pos0-pos2).length()<1){
+        simulations[idx].status=0;
+        return;
+    }
 
     vel0+=G*deltaTime*m1/dot((pos1-pos0),(pos1-pos0))*normalize(pos1-pos0);
     vel0+=G*deltaTime*m2/dot((pos2-pos0),(pos2-pos0))*normalize(pos2-pos0);
