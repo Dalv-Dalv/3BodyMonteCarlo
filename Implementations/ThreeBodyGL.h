@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <utility>
 
-class SlimeMoldGL {
+class ThreeBodyGL {
 	GLFWwindow* window;
 	int screenWidth, screenHeight;
 
@@ -11,8 +11,8 @@ class SlimeMoldGL {
 
 	static GLuint GetFullscreenQuad();
 public:
-	SlimeMoldGL(int screenWidth = 1024, int screenHeight = 800, bool fullScreen = false);
-	~SlimeMoldGL();
+	ThreeBodyGL(int screenWidth = 1024, int screenHeight = 800, bool fullScreen = false);
+	~ThreeBodyGL();
 
 	void Animate(int width, int height);
 
