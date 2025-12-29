@@ -11,7 +11,7 @@ public:
 
     static float GetFloat(float min=0,float max=1);
     static int64_t GetInt(int64_t min, int64_t max);
-	void randomPointInUnitCircle(float& x, float& y);
+	static void randomPointInUnitCircle(float& x, float& y);
 
 private:
     std::random_device dev;

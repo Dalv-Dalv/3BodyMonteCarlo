@@ -6,7 +6,7 @@ Random::Random() : rng(dev()), dist(0.0f, 1.0f) {}
 float Random::GetFloat(float min,float max) {
     CreateInstance();
     float x=Random::instance->dist(Random::instance->rng);
-    return (x-min)*(max-min);
+    return min+x*(max-min);
 }
 
 int64_t Random::GetInt(int64_t min, int64_t max) {
@@ -16,8 +16,8 @@ int64_t Random::GetInt(int64_t min, int64_t max) {
 }
 
 void Random::randomPointInUnitCircle(float& x, float& y) {
-	float angle = 2.0f * M_PI * dist(rng);
-	float radius = std::sqrt(dist(rng));
+	float angle = 2.0f * M_PI * instance->GetFloat();
+	float radius = std::sqrt(instance->GetFloat());
 
 	x = radius * std::cos(angle);
 	y = radius * std::sin(angle);

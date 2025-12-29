@@ -105,8 +105,8 @@ void ThreeBodyGL::Animate(int width, int height) {
 		float noiseScale = 0.01f;
 
 		for(int b=0; b<3; b++) {
-			simulations[i].bodies[b].x += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
-			simulations[i].bodies[b].y += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
+			simulations[i].bodies[b].x += Random::GetFloat(-noiseScale,noiseScale)  ;
+			simulations[i].bodies[b].y += Random::GetFloat(-noiseScale,noiseScale) ;
 		}
 	}
 
