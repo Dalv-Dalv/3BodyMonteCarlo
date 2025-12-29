@@ -67,8 +67,6 @@ ThreeBodyGL::~ThreeBodyGL() {
 }
 
 
-
-
 void ThreeBodyGL::Animate(int width, int height) {
 	struct Body {
 		float x, y, vx, vy;
@@ -99,9 +97,9 @@ void ThreeBodyGL::Animate(int width, int height) {
 	float vy = 0.43236573;
 	for(int i = 0; i < SIM_COUNT; i++) {
 		simulations[i].status = 1;
-		simulations[i].bodies[0] = {px, py, 0, 1.0f,  vx, vy, 0, 0};
-		simulations[i].bodies[1] = {-px, -py, 0, 1.0f, vx, vy, 0, 0};
-		simulations[i].bodies[2] = {0, 0, 0, 1.0f, -2*vx, -2*vy, 0, 0};
+		simulations[i].bodies[0] = {px, py, vx, vy,  1.0f, 1.0f, 0, 0};
+		simulations[i].bodies[1] = {-px, -py, vx, vy, 1.0f, 0, 1.0f, 0};
+		simulations[i].bodies[2] = {0, 0, 2*vx, -2*vy, 1.0f, 0, 0, 1.0f};
 
 		// Monte Carlo
 		float noiseScale = 0.05f;
@@ -120,29 +118,16 @@ void ThreeBodyGL::Animate(int width, int height) {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, simBuffer); // Binding 0 to match GLSL
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-		GLuint computeProgram = CreateComputeProgram("Shaders/slimeMold.comp");
+	GLuint computeProgram = CreateComputeProgram("Shaders/threeBody.comp");
 	glUseProgram(computeProgram);
 	glUniform1i(glGetUniformLocation(computeProgram, "width"), width);
 	glUniform1i(glGetUniformLocation(computeProgram, "height"), height);
-	glUniform1i(glGetUniformLocation(computeProgram, "agentsCount"), SIM_COUNT);
+	glUniform1i(glGetUniformLocation(computeProgram, "simCount"), SIM_COUNT);
 	int compTimeLoc = glGetUniformLocation(computeProgram, "time");
 	int compDeltaTimeLoc = glGetUniformLocation(computeProgram, "deltaTime");
-	int sl_trailWeightLoc = glGetUniformLocation(computeProgram, "trailWeight");
-	int sl_moveSpeedLoc = glGetUniformLocation(computeProgram, "moveSpeed");
-	int sl_turnSpeedLoc = glGetUniformLocation(computeProgram, "turnSpeed");
-	int sl_sensorAngleSpacingLoc = glGetUniformLocation(computeProgram, "sensorAngleSpacing");
-	int sl_sensorDistOffsetLoc = glGetUniformLocation(computeProgram, "sensorOffsetDist");
-
-	GLuint evaporationComputeProgram = CreateComputeProgram("Shaders/pheromoneEvaporation.comp");
-	glUseProgram(evaporationComputeProgram);
-	glUniform1i(glGetUniformLocation(evaporationComputeProgram, "width"), width);
-	glUniform1i(glGetUniformLocation(evaporationComputeProgram, "height"), height);
-	int evapCompDeltaTimeLoc = glGetUniformLocation(evaporationComputeProgram, "deltaTime");
-	int sl_diffusionRateLoc = glGetUniformLocation(evaporationComputeProgram, "diffuseRate");
-	int sl_decayRateLoc = glGetUniformLocation(evaporationComputeProgram, "decayRate");
 
 	auto fullscreenQuad = GetFullscreenQuad();
-	GLuint fragmentShaderProgram = CreateShaderProgram("Shaders/defaultVertex.vert", "Shaders/slimeMold.frag");
+	GLuint fragmentShaderProgram = CreateShaderProgram("Shaders/defaultVertex.vert", "Shaders/threeBody.frag");
 	int fragTextureLoc = glGetUniformLocation(fragmentShaderProgram, "slimeTexture");
 	int fragWidthLoc = glGetUniformLocation(fragmentShaderProgram, "width");
 	int fragHeightLoc = glGetUniformLocation(fragmentShaderProgram, "height");

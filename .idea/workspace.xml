@@ -38,6 +38,10 @@
     <list default="true" id="dfe77bcc-4f66-495f-82e1-a584774e14f1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Implementations/ThreeBodyGL.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Implementations/ThreeBodyGL.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shaders/pheromoneEvaporation.comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shaders/slimeMold.comp" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/threeBody.comp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shaders/slimeMold.frag" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/threeBody.frag" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shaders/test.comp" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
