@@ -18,6 +18,8 @@ add_executable(ThreeBody main.cpp
         Implementations/ThreeBodyGL.cpp
         Implementations/ThreeBodyGL.h
         include/stb_image_write.h
+        Utils/Random.cpp
+        Utils/Random.h
         imgui/imgui.cpp
         imgui/imgui_draw.cpp
         imgui/imgui_widgets.cpp
