@@ -9,16 +9,17 @@ uniform float time;
 uniform float deltaTime;
 uniform float G;
 uniform float escapeThreshold; // Distanta
+uniform float collisionThreshold; // Distanta
 
 struct Body {
-    vec2 pos, vel;
-    float mass;
-    vec3 col;
+    float x, y, vx, vy;
+    float mass, r, g, b;
 };
+
 struct Simulation {
     Body bodies[3];
     int status;
-    float pad[3];
+    float pad1, pad2, pad3;
 };
 
 layout(std430, binding = 0) buffer SimBuffer {
@@ -27,34 +28,48 @@ layout(std430, binding = 0) buffer SimBuffer {
 
 void main() {
     uint idx = gl_GlobalInvocationID.x;
-    if (idx >= sims.length()) return;
+    if (idx >= simulations.length()) return;
 
-    // Daca simularea a esuat deja, nu mai calculam nimic
-    if (sims[idx].status == 0) return;
+    if (simulations[idx].status == 0) {
+        vec2 center = vec2(width, height) / 2.0;
+        float scale = min(width, height) / 4.0;
+        for(int i=0; i<3; i++) {
+            float px = simulations[idx].bodies[i].x;
+            float py = simulations[idx].bodies[i].y;
 
+            vec4 color = vec4(simulations[idx].bodies[i].r, simulations[idx].bodies[i].g, simulations[idx].bodies[i].b, 1.0);
 
+            vec2 worldPos = vec2(px, py);
+            ivec2 screenPos = ivec2(center + worldPos * scale);
 
-    vec2 pos0 = simulations[idx].bodies[0].pos;
-    vec2 pos1 = simulations[idx].bodies[1].pos;
-    vec2 pos2 = simulations[idx].bodies[2].pos;
+            if(screenPos.x >= 0 && screenPos.x < width && screenPos.y >= 0 && screenPos.y < height) {
+                imageStore(visualizationTexture, screenPos, color);
+            }
+        }
+        return;
+    }
 
-    vec2 vel0 = simulations[idx].bodies[0].vel;
-    vec2 vel1 = simulations[idx].bodies[1].vel;
-    vec2 vel2 = simulations[idx].bodies[2].vel;
+    vec2 pos0 = vec2(simulations[idx].bodies[0].x, simulations[idx].bodies[0].y);
+    vec2 pos1 = vec2(simulations[idx].bodies[1].x, simulations[idx].bodies[1].y);
+    vec2 pos2 = vec2(simulations[idx].bodies[2].x, simulations[idx].bodies[2].y);
 
-    vec2 m0 = simulations[idx].bodies[0].mass;
-    vec2 m1 = simulations[idx].bodies[1].mass;
-    vec2 m2 = simulations[idx].bodies[2].mass;
+    vec2 vel0 = vec2(simulations[idx].bodies[0].vx, simulations[idx].bodies[0].vy);
+    vec2 vel1 = vec2(simulations[idx].bodies[1].vx, simulations[idx].bodies[1].vy);
+    vec2 vel2 = vec2(simulations[idx].bodies[2].vx, simulations[idx].bodies[2].vy);
 
-    if((pos0-pos1).length()<1){
+    float m0 = simulations[idx].bodies[0].mass;
+    float m1 = simulations[idx].bodies[1].mass;
+    float m2 = simulations[idx].bodies[2].mass;
+
+    if(length(pos0-pos1) < collisionThreshold){
         simulations[idx].status=0;
         return;
     }
-    if((pos1-pos2).length()<1){
+    if(length(pos1-pos2) < collisionThreshold){
         simulations[idx].status=0;
         return;
     }
-    if((pos0-pos2).length()<1){
+    if(length(pos0-pos2) < collisionThreshold){
         simulations[idx].status=0;
         return;
     }
@@ -68,15 +83,37 @@ void main() {
     vel2+=G*deltaTime*m0/dot((pos0-pos2),(pos0-pos2))*normalize(pos0-pos2);
     vel2+=G*deltaTime*m1/dot((pos1-pos2),(pos1-pos2))*normalize(pos1-pos2);
 
-    simulations[idx].bodies[0].vel = vel0;
-    simulations[idx].bodies[1].vel = vel1;
-    simulations[idx].bodies[2].vel = vel2;
+    simulations[idx].bodies[0].vx = vel0.x;
+    simulations[idx].bodies[0].vy = vel0.y;
 
-    simulations[idx].bodies[0].pos += vel0 * deltaTime;
-    simulations[idx].bodies[1].pos += vel1 * deltaTime;
-    simulations[idx].bodies[2].pos += vel2 * deltaTime;
+    simulations[idx].bodies[1].vx = vel1.x;
+    simulations[idx].bodies[1].vy = vel1.y;
 
-    imageStore(visualizationTexture, sims[idx].bodies[0].pos, sims[idx].bodies[0].col);
-    imageStore(visualizationTexture, sims[idx].bodies[1].pos, sims[idx].bodies[1].col);
-    imageStore(visualizationTexture, sims[idx].bodies[2].pos, sims[idx].bodies[2].col);
+    simulations[idx].bodies[2].vx = vel2.x;
+    simulations[idx].bodies[2].vy = vel2.y;
+
+    simulations[idx].bodies[0].x += (vel0 * deltaTime).x;
+    simulations[idx].bodies[0].y += (vel0 * deltaTime).y;
+
+    simulations[idx].bodies[1].x += (vel1 * deltaTime).x;
+    simulations[idx].bodies[1].y += (vel1 * deltaTime).y;
+
+    simulations[idx].bodies[2].x += (vel2 * deltaTime).x;
+    simulations[idx].bodies[2].y += (vel2 * deltaTime).y;
+
+    vec2 center = vec2(width, height) / 2.0;
+    float scale = min(width, height) / 4.0;
+    for(int i=0; i<3; i++) {
+        float px = simulations[idx].bodies[i].x;
+        float py = simulations[idx].bodies[i].y;
+
+        vec4 color = vec4(simulations[idx].bodies[i].r, simulations[idx].bodies[i].g, simulations[idx].bodies[i].b, 1.0);
+
+        vec2 worldPos = vec2(px, py);
+        ivec2 screenPos = ivec2(center + worldPos * scale);
+
+        if(screenPos.x >= 0 && screenPos.x < width && screenPos.y >= 0 && screenPos.y < height) {
+            imageStore(visualizationTexture, screenPos, color);
+        }
+    }
 }

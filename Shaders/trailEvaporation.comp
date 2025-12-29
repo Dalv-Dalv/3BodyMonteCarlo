@@ -1,0 +1,35 @@
+#version 440
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+layout(rgba32f, binding = 0) uniform image2D tex;
+uniform int width, height;
+
+uniform float deltaTime;
+
+const float diffuseRate = 10.0;
+const float decayRate = 0.06;
+
+void main() {
+    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+
+    vec3 originalCol = imageLoad(tex, pos).rgb;
+    vec3 col = vec3(0);
+    const int size = 1;
+    int total = 0;
+    for(int x = -size; x <= size; x++){
+        for(int y = -size; y <= size; y++){
+            col += imageLoad(tex, pos + ivec2(x, y)).rgb;
+            total++;
+        }
+    }
+
+    col /= total;
+    float diffuseWeight = min(1, diffuseRate * deltaTime);
+    col = originalCol * (1 - diffuseWeight) + col * diffuseWeight;
+
+    col.r = max(0, col.r - decayRate * deltaTime);
+    col.g = max(0, col.g - decayRate * deltaTime * 1.05);
+    col.b = max(0, col.b - decayRate * deltaTime * 1.1);
+
+    imageStore(tex, pos, vec4(col, 1));
+}

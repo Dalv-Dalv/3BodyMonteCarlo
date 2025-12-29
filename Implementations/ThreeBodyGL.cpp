@@ -21,7 +21,6 @@ ThreeBodyGL::ThreeBodyGL(int screenWidth, int screenHeight, bool fullScreen)
 	: screenWidth(screenWidth), screenHeight(screenHeight) {
 	glfwInit();
 
-
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
 
@@ -76,9 +75,9 @@ void ThreeBodyGL::Animate(int width, int height) {
 		float angle;
 	};
 
-	GLuint slimeTexture;
-	glGenTextures(1, &slimeTexture);
-	glBindTexture(GL_TEXTURE_2D, slimeTexture);
+	GLuint visualizationTexture;
+	glGenTextures(1, &visualizationTexture);
+	glBindTexture(GL_TEXTURE_2D, visualizationTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -90,16 +89,21 @@ void ThreeBodyGL::Animate(int width, int height) {
 	float py = -0.24308753;
 	float vx = 0.466203685;
 	float vy = 0.43236573;
-	for(int i = 0; i < SIM_COUNT; i++) {
+	for(int i = 0; i < 1; i++) {
 		simulations[i].status = 1;
 		simulations[i].bodies[0] = {px, py, vx, vy,  1.0f, 1.0f, 0, 0};
 		simulations[i].bodies[1] = {-px, -py, vx, vy, 1.0f, 0, 1.0f, 0};
-		simulations[i].bodies[2] = {0, 0, 2*vx, -2*vy, 1.0f, 0, 0, 1.0f};
+		simulations[i].bodies[2] = {0, 0, -2*vx, -2*vy, 1.0f, 0, 0, 1.0f};
+	}
+	for(int i = 1; i < SIM_COUNT; i++) {
+		simulations[i].status = 1;
+		simulations[i].bodies[0] = {px, py, vx, vy,  1.0f, 1.0f, 0, 0};
+		simulations[i].bodies[1] = {-px, -py, vx, vy, 1.0f, 0, 1.0f, 0};
+		simulations[i].bodies[2] = {0, 0, -2*vx, -2*vy, 1.0f, 0, 0, 1.0f};
 
 		// Monte Carlo
-		float noiseScale = 0.05f;
+		float noiseScale = 0.01f;
 
-		// STEFAN TODO: Replace with new RNG
 		for(int b=0; b<3; b++) {
 			simulations[i].bodies[b].x += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
 			simulations[i].bodies[b].y += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
@@ -118,12 +122,21 @@ void ThreeBodyGL::Animate(int width, int height) {
 	glUniform1i(glGetUniformLocation(computeProgram, "width"), width);
 	glUniform1i(glGetUniformLocation(computeProgram, "height"), height);
 	glUniform1i(glGetUniformLocation(computeProgram, "simCount"), SIM_COUNT);
+	glUniform1f(glGetUniformLocation(computeProgram, "G"), 1.0f); // Constanta G
+	glUniform1f(glGetUniformLocation(computeProgram, "escapeThreshold"), 5.0f); // Distanța max
+	glUniform1f(glGetUniformLocation(computeProgram, "collisionThreshold"), 0.1f); // Distanța max
+	glUniform1f(glGetUniformLocation(computeProgram, "deltaTime"), 0.0005f);
 	int compTimeLoc = glGetUniformLocation(computeProgram, "time");
-	int compDeltaTimeLoc = glGetUniformLocation(computeProgram, "deltaTime");
+
+	GLuint evaporationComputeProgram = CreateComputeProgram("Shaders/trailEvaporation.comp");
+	glUseProgram(evaporationComputeProgram);
+	glUniform1i(glGetUniformLocation(evaporationComputeProgram, "width"), width);
+	glUniform1i(glGetUniformLocation(evaporationComputeProgram, "height"), height);
+	int evapCompDeltaTimeLoc = glGetUniformLocation(evaporationComputeProgram, "deltaTime");
 
 	auto fullscreenQuad = GetFullscreenQuad();
 	GLuint fragmentShaderProgram = CreateShaderProgram("Shaders/defaultVertex.vert", "Shaders/threeBody.frag");
-	int fragTextureLoc = glGetUniformLocation(fragmentShaderProgram, "slimeTexture");
+	int fragTextureLoc = glGetUniformLocation(fragmentShaderProgram, "visualizationTexture");
 	int fragWidthLoc = glGetUniformLocation(fragmentShaderProgram, "width");
 	int fragHeightLoc = glGetUniformLocation(fragmentShaderProgram, "height");
 	int fragTimeLoc = glGetUniformLocation(fragmentShaderProgram, "time");
@@ -145,28 +158,15 @@ void ThreeBodyGL::Animate(int width, int height) {
 		for(int i = 0; i < sl_timeStep; i++) {
 			glUseProgram(computeProgram);
 			glUniform1f(compTimeLoc, currentTime);
-			glUniform1f(compDeltaTimeLoc, deltaTime);
-
-			glUniform1f(sl_trailWeightLoc, UIWrapper::Get_TrailWeight());
-			glUniform1f(sl_moveSpeedLoc, UIWrapper::Get_MoveSpeed());
-			glUniform1f(sl_turnSpeedLoc, UIWrapper::Get_TurnSpeed());
-			glUniform1f(sl_sensorAngleSpacingLoc, UIWrapper::Get_SensorAngleSpacing());
-			glUniform1f(sl_sensorDistOffsetLoc, UIWrapper::Get_SensorDistOffset());
 
 			glBindImageTexture(0, visualizationTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, simBuffer);
-			glDispatchCompute((SIM_COUNT + 15) / 16, 1, 1);
-
+			glDispatchCompute((SIM_COUNT + 255) / 256, 1, 1);
 
 			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
 
-
 			glUseProgram(evaporationComputeProgram);
 			glUniform1f(evapCompDeltaTimeLoc, deltaTime);
-
-			glUniform1f(sl_diffusionRateLoc, UIWrapper::Get_DiffusionRate());
-			glUniform1f(sl_decayRateLoc, UIWrapper::Get_DecayRate());
-
 			glBindImageTexture(0, visualizationTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 			glDispatchCompute((width + 15) / 16, (height + 15) / 16, 1);
 

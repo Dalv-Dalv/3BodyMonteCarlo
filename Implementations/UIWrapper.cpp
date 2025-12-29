@@ -7,7 +7,7 @@
 GLFWwindow* UIWrapper::window = nullptr;
 bool UIWrapper::showUI = false;
 bool UIWrapper::key_pressed = false;
-int UIWrapper::sl_timeStep = 0;
+int UIWrapper::sl_timeStep = 1;
 float UIWrapper::sl_trailWeight = 0.5;
 float UIWrapper::sl_diffusionRate = 10.0;
 float UIWrapper::sl_decayRate = 0.06;
@@ -45,7 +45,7 @@ void UIWrapper::Render(int screenWidth, int screenHeight) {
 	ImGui::NewFrame();
 	ImGui::Begin("Slime mold simulation settings");
 
-	ImGui::SliderInt("Time step", &sl_timeStep, 0, 20);
+	ImGui::SliderInt("Time step", &sl_timeStep, 1, 20);
 	ImGui::SliderFloat("Trail weight", &sl_trailWeight, 0.0f, 10.0f);
 	ImGui::SliderFloat("Diffusion rate", &sl_diffusionRate, 0.0f, 20.0f);
 	ImGui::SliderFloat("Decay rate", &sl_decayRate, 0.001f, 3.0f);
