@@ -6,8 +6,8 @@ uniform int width, height;
 
 uniform float deltaTime;
 
-const float diffuseRate = 10.0;
-const float decayRate = 0.06;
+uniform float diffuseRate = 10.0;
+uniform float decayRate = 0.01;
 
 void main() {
     ivec2 pos = ivec2(gl_GlobalInvocationID.xy);

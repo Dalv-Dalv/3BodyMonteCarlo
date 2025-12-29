@@ -9,8 +9,8 @@ bool UIWrapper::showUI = false;
 bool UIWrapper::key_pressed = false;
 int UIWrapper::sl_timeStep = 1;
 float UIWrapper::sl_trailWeight = 0.5;
-float UIWrapper::sl_diffusionRate = 10.0;
-float UIWrapper::sl_decayRate = 0.06;
+float UIWrapper::sl_diffusionRate = 1.0;
+float UIWrapper::sl_decayRate = 0.01;
 float UIWrapper::sl_moveSpeed = 5.0;
 float UIWrapper::sl_turnSpeed = 5.0;
 float UIWrapper::sl_sensorAngleSpacing = 10.0;
@@ -46,13 +46,8 @@ void UIWrapper::Render(int screenWidth, int screenHeight) {
 	ImGui::Begin("Slime mold simulation settings");
 
 	ImGui::SliderInt("Time step", &sl_timeStep, 1, 20);
-	ImGui::SliderFloat("Trail weight", &sl_trailWeight, 0.0f, 10.0f);
-	ImGui::SliderFloat("Diffusion rate", &sl_diffusionRate, 0.0f, 20.0f);
-	ImGui::SliderFloat("Decay rate", &sl_decayRate, 0.001f, 3.0f);
-	ImGui::SliderFloat("Move speed", &sl_moveSpeed, 0.0f, 100.0f);
-	ImGui::SliderFloat("Turn speed", &sl_turnSpeed, -20.0f, 20.0f);
-	ImGui::SliderFloat("Sensor spacing", &sl_sensorAngleSpacing, 0.0f, 179.9f);
-	ImGui::SliderFloat("Sensor distance", &sl_sensorDistOffset, 0.0f, 150.0f);
+	ImGui::SliderFloat("Trail diffusion rate", &sl_diffusionRate, 0.0f, 20.0f);
+	ImGui::SliderFloat("Trail decay rate", &sl_decayRate, 0.001f, 1.0f);
 
 	ImGui::End();
 

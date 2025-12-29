@@ -82,7 +82,7 @@ void ThreeBodyGL::Animate(int width, int height) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	const int SIM_COUNT = 10000;
+	const int SIM_COUNT = 1000;
 	std::vector<Simulation> simulations(SIM_COUNT);
 	// Parametrii figura 8 (solutie stabila)
 	float px = 0.97000436;
@@ -102,11 +102,17 @@ void ThreeBodyGL::Animate(int width, int height) {
 		simulations[i].bodies[2] = {0, 0, -2*vx, -2*vy, 1.0f, 0, 0, 1.0f};
 
 		// Monte Carlo
-		float noiseScale = 0.01f;
+		float noiseScale = 0.001f;
 
 		for(int b=0; b<3; b++) {
-			simulations[i].bodies[b].x += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
-			simulations[i].bodies[b].y += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
+			float x, y;
+			Random::RandomPointInUnitCircle(x, y);
+
+			simulations[i].bodies[b].x += x * noiseScale;
+			simulations[i].bodies[b].y += y * noiseScale;
+
+			// simulations[i].bodies[b].x += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
+			// simulations[i].bodies[b].y += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
 		}
 	}
 
@@ -133,6 +139,8 @@ void ThreeBodyGL::Animate(int width, int height) {
 	glUniform1i(glGetUniformLocation(evaporationComputeProgram, "width"), width);
 	glUniform1i(glGetUniformLocation(evaporationComputeProgram, "height"), height);
 	int evapCompDeltaTimeLoc = glGetUniformLocation(evaporationComputeProgram, "deltaTime");
+	int diffuseRateLoc = glGetUniformLocation(evaporationComputeProgram, "diffuseRate");
+	int decayRateLoc = glGetUniformLocation(evaporationComputeProgram, "decayRate");
 
 	auto fullscreenQuad = GetFullscreenQuad();
 	GLuint fragmentShaderProgram = CreateShaderProgram("Shaders/defaultVertex.vert", "Shaders/threeBody.frag");
@@ -166,6 +174,8 @@ void ThreeBodyGL::Animate(int width, int height) {
 			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
 
 			glUseProgram(evaporationComputeProgram);
+			glUniform1f(diffuseRateLoc, UIWrapper::Get_DiffusionRate());
+			glUniform1f(decayRateLoc, UIWrapper::Get_DecayRate());
 			glUniform1f(evapCompDeltaTimeLoc, deltaTime);
 			glBindImageTexture(0, visualizationTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 			glDispatchCompute((width + 15) / 16, (height + 15) / 16, 1);

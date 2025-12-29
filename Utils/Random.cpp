@@ -15,9 +15,9 @@ int64_t Random::GetInt(int64_t min, int64_t max) {
     return dist(Random::instance->rng);
 }
 
-void Random::randomPointInUnitCircle(float& x, float& y) {
-	float angle = 2.0f * M_PI * dist(rng);
-	float radius = std::sqrt(dist(rng));
+void Random::RandomPointInUnitCircle(float& x, float& y) {
+	float angle = 2.0f * M_PI * GetFloat();
+	float radius = std::sqrt(GetFloat());
 
 	x = radius * std::cos(angle);
 	y = radius * std::sin(angle);
