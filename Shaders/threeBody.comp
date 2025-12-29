@@ -73,15 +73,23 @@ void main() {
         simulations[idx].status=0;
         return;
     }
+    float eps = 0.0001;
 
-    vel0+=G*deltaTime*m1/dot((pos1-pos0),(pos1-pos0))*normalize(pos1-pos0);
-    vel0+=G*deltaTime*m2/dot((pos2-pos0),(pos2-pos0))*normalize(pos2-pos0);
+    vec2 r01 = pos1 - pos0;
+    vec2 r02 = pos2 - pos0;
+    vec2 r12 = pos2 - pos1;
+    vec2 r10 = pos0 - pos1;
+    vec2 r20 = pos0 - pos2;
+    vec2 r21 = pos1 - pos2;
 
-    vel1+=G*deltaTime*m0/dot((pos0-pos1),(pos0-pos1))*normalize(pos0-pos1);
-    vel1+=G*deltaTime*m2/dot((pos2-pos1),(pos2-pos1))*normalize(pos2-pos1);
+    vel0 += G * deltaTime * m1 / pow(length(r01) + eps, 3.0) * r01;
+    vel0 += G * deltaTime * m1 / pow(length(r02) + eps, 3.0) * r02;
 
-    vel2+=G*deltaTime*m0/dot((pos0-pos2),(pos0-pos2))*normalize(pos0-pos2);
-    vel2+=G*deltaTime*m1/dot((pos1-pos2),(pos1-pos2))*normalize(pos1-pos2);
+    vel1 += G * deltaTime * m1 / pow(length(r10) + eps, 3.0) * r10;
+    vel1 += G * deltaTime * m1 / pow(length(r12) + eps, 3.0) * r12;
+
+    vel2 += G * deltaTime * m1 / pow(length(r21) + eps, 3.0) * r21;
+    vel2 += G * deltaTime * m1 / pow(length(r20) + eps, 3.0) * r20;
 
     simulations[idx].bodies[0].vx = vel0.x;
     simulations[idx].bodies[0].vy = vel0.y;

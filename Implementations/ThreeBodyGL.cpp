@@ -1,5 +1,4 @@
 #include "ThreeBodyGL.h"
-
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -7,14 +6,19 @@
 #include <vector>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+
+
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include "../Utils/Random.h"
 #include "../include/stb_image_write.h"
 #include "UIWrapper.h"
-
-
+struct Simulation {
+	Body bodies[3];  // 3 * 32 bytes = 96 bytes
+	int status;      // 4 bytes (1 = stabil, 0 = coliziune/expulzat)
+	float padding[3];// 12 bytes padding
+};
 
 
 ThreeBodyGL::ThreeBodyGL(int screenWidth, int screenHeight, bool fullScreen)
@@ -53,19 +57,50 @@ ThreeBodyGL::~ThreeBodyGL() {
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }
+void ThreeBodyGL::LoadData() {
+	std::vector<Simulation> simulations(SIM_COUNT);
+	// Parametrii figura 8 (solutie stabila)
+	float px = 0.97000436;
+	float py = -0.24308753;
+	float vx = 0.466203685;
+	float vy = 0.43236573;
+	for(int i = 0; i < 1; i++) {
+		simulations[i].status = 1;
+		simulations[i].bodies[0] = UIWrapper::GetBody()[0];
+		simulations[i].bodies[1] = UIWrapper::GetBody()[1];
+		simulations[i].bodies[2] = UIWrapper::GetBody()[2];
+	}
+	for(int i = 1; i < SIM_COUNT; i++) {
+		simulations[i].status = 1;
+		simulations[i].bodies[0] = UIWrapper::GetBody()[0];
+		simulations[i].bodies[1] = UIWrapper::GetBody()[1];
+		simulations[i].bodies[2] = UIWrapper::GetBody()[2];
+		// Monte Carlo
+		float noiseScale = 0.01f;
+
+		for(int b=0; b<3; b++) {
+			float x, y;
+			Random::RandomPointInUnitCircle(x, y);
+
+			simulations[i].bodies[b].x += x * noiseScale;
+			simulations[i].bodies[b].y += y * noiseScale;
+
+			// simulations[i].bodies[b].x += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
+			// simulations[i].bodies[b].y += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
+		}
+	}
+
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, simBuffer);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Simulation) * simulations.size(), simulations.data(), GL_DYNAMIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, simBuffer); // Binding 0 to match GLSL
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
 
 
 void ThreeBodyGL::Animate(int width, int height) {
-	struct Body {
-		float x, y, vx, vy;
-		float mass, r, g, b;
-	};
 
-	struct Simulation {
-		Body bodies[3];  // 3 * 32 bytes = 96 bytes
-		int status;      // 4 bytes (1 = stabil, 0 = coliziune/expulzat)
-		float padding[3];// 12 bytes padding
-	};
+
 
 	static_assert(sizeof(Simulation) % 16 == 0);
 
@@ -82,46 +117,10 @@ void ThreeBodyGL::Animate(int width, int height) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	const int SIM_COUNT = 1000;
-	std::vector<Simulation> simulations(SIM_COUNT);
-	// Parametrii figura 8 (solutie stabila)
-	float px = 0.97000436;
-	float py = -0.24308753;
-	float vx = 0.466203685;
-	float vy = 0.43236573;
-	for(int i = 0; i < 1; i++) {
-		simulations[i].status = 1;
-		simulations[i].bodies[0] = {px, py, vx, vy,  1.0f, 1.0f, 0, 0};
-		simulations[i].bodies[1] = {-px, -py, vx, vy, 1.0f, 0, 1.0f, 0};
-		simulations[i].bodies[2] = {0, 0, -2*vx, -2*vy, 1.0f, 0, 0, 1.0f};
-	}
-	for(int i = 1; i < SIM_COUNT; i++) {
-		simulations[i].status = 1;
-		simulations[i].bodies[0] = {px, py, vx, vy,  1.0f, 1.0f, 0, 0};
-		simulations[i].bodies[1] = {-px, -py, vx, vy, 1.0f, 0, 1.0f, 0};
-		simulations[i].bodies[2] = {0, 0, -2*vx, -2*vy, 1.0f, 0, 0, 1.0f};
-
-		// Monte Carlo
-		float noiseScale = 0.001f;
-
-		for(int b=0; b<3; b++) {
-			float x, y;
-			Random::RandomPointInUnitCircle(x, y);
-
-			simulations[i].bodies[b].x += x * noiseScale;
-			simulations[i].bodies[b].y += y * noiseScale;
-
-			// simulations[i].bodies[b].x += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
-			// simulations[i].bodies[b].y += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
-		}
-	}
 
 	GLuint simBuffer;
 	glGenBuffers(1, &simBuffer);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, simBuffer);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Simulation) * simulations.size(), simulations.data(), GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, simBuffer); // Binding 0 to match GLSL
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
 
 	GLuint computeProgram = CreateComputeProgram("Shaders/threeBody.comp");
 	glUseProgram(computeProgram);
@@ -130,7 +129,7 @@ void ThreeBodyGL::Animate(int width, int height) {
 	glUniform1i(glGetUniformLocation(computeProgram, "simCount"), SIM_COUNT);
 	glUniform1f(glGetUniformLocation(computeProgram, "G"), 1.0f); // Constanta G
 	glUniform1f(glGetUniformLocation(computeProgram, "escapeThreshold"), 5.0f); // Distanța max
-	glUniform1f(glGetUniformLocation(computeProgram, "collisionThreshold"), 0.1f); // Distanța max
+	glUniform1f(glGetUniformLocation(computeProgram, "collisionThreshold"), 0.00001f); // Distanța max
 	glUniform1f(glGetUniformLocation(computeProgram, "deltaTime"), 0.0005f);
 	int compTimeLoc = glGetUniformLocation(computeProgram, "time");
 
@@ -156,8 +155,10 @@ void ThreeBodyGL::Animate(int width, int height) {
 	float prevTime = 0;
 	float deltaTime = 0;
 	int sl_timeStep = UIWrapper::Get_TimeStep();
+	UIWrapper::restart=true;
 	while(!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT);
+
 		float currentTime = glfwGetTime();
 		deltaTime = currentTime - prevTime;
 		prevTime = currentTime;
@@ -196,6 +197,10 @@ void ThreeBodyGL::Animate(int width, int height) {
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+		if(UIWrapper::restart) {
+			LoadData();
+			UIWrapper::restart = false;
+		}
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();
