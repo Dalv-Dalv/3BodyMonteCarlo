@@ -1,0 +1,37 @@
+cmake_minimum_required(VERSION 3.30)
+project(SlimeMold LANGUAGES C CXX)
+
+
+# Include directories for GLFW, CUDA, and GLAD
+include_directories(${CMAKE_SOURCE_DIR}/libs/include)
+include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/src)  # Ensure glad.c is available
+
+link_directories(${CMAKE_SOURCE_DIR}/libs/mingw)
+
+# Add GLAD to the project as a STATIC library
+add_library(glad STATIC src/glad.c)
+set_target_properties(glad PROPERTIES LINKER_LANGUAGE C)
+
+# Create the executable
+add_executable(SlimeMold main.cpp
+        Implementations/SlimeMoldGL.cpp
+        Implementations/SlimeMoldGL.h
+        include/stb_image_write.h
+        imgui/imgui.cpp
+        imgui/imgui_draw.cpp
+        imgui/imgui_widgets.cpp
+        imgui/imgui_tables.cpp
+        imgui/imgui_demo.cpp
+        imgui/backends/imgui_impl_glfw.cpp
+        imgui/backends/imgui_impl_opengl3.cpp
+        imgui/backends/imgui_impl_opengl3_loader.h
+        Implementations/UIWrapper.cpp
+        Implementations/UIWrapper.h
+)
+
+# Link GLAD and other libraries
+target_link_libraries(SlimeMold PRIVATE glad glfw3 opengl32
+        kernel32 user32 gdi32 winspool shell32 ole32 oleaut32 uuid comdlg32 advapi32)
+
+target_include_directories(SlimeMold PRIVATE imgui imgui/backends)

@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="BackendCodeEditorMiscSettings">
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="4" type="long" />
+    <option name="/Default/Environment/UserInterface/HierarchyView/ViewStyle/@EntryValue" value="SuperTypes" type="string" />
+    <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/OptionsDialog/SelectedPageId/@EntryValue" value="CppFormatterOtherPage" type="string" />
+    <option name="/Default/Housekeeping/RefactoringsMru/RenameRefactoring/DoSearchForTextInStrings/@EntryValue" value="true" type="bool" />
+    <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
+  </component>
+  <component name="CMakePresetLoader">{
+  &quot;useNewFormat&quot;: true
+}</component>
+  <component name="CMakeProjectFlavorService">
+    <option name="flavorId" value="CMakePlainProjectFlavor" />
+  </component>
+  <component name="CMakeReloadState">
+    <option name="reloaded" value="true" />
+  </component>
+  <component name="CMakeRunConfigurationManager">
+    <generated>
+      <config projectName="SlimeMold" targetName="glad" />
+      <config projectName="SlimeMold" targetName="SlimeMold" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug-MinGW" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="MinGW" />
+      <configuration PROFILE_NAME="Release-MinGW" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="MinGW" GENERATION_OPTIONS="-DCMAKE_EXE_LINKER_FLAGS=&quot;-static -static-libgcc -static-libstdc++&quot;" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="dfe77bcc-4f66-495f-82e1-a584774e14f1" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Release-MinGW" />
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="shader-template" />
+        <option value="cs-template" />
+        <option value="vs-template" />
+        <option value="fs-template" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Dalv-Dalv&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Dalv-Dalv/SlimeMold.git&quot;,
+    &quot;accountId&quot;: &quot;dd7796d7-71bc-4fd4-a0b0-fb95d069a326&quot;
+  }
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Implementations/SlimeMoldGL.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Implementations/SlimeMoldGL.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Implementations/UIWrapper.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Implementations/UIWrapper.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/imgui/backends/imgui_impl_glfw.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/include/glad.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/include/stb_image_write.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/main.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/glad.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/glad.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../School/University/Classes/Semestrul2/SD/BitonicSort/Implementations/GLSLCompute.cpp" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="ProjectApplicationVersion">
+    <option name="ide" value="CLion" />
+    <option name="majorVersion" value="2024" />
+    <option name="minorVersion" value="3.4" />
+    <option name="productBranch" value="Classic" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="2urEMK9BpO2BbewOj6H0LmUkxkE" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "CMake Application.BitonicSort.executor": "Run",
+    "CMake Application.SlimeMold.executor": "Run",
+    "CMake Application.Unnamed.executor": "Run",
+    "CMake Debug.BitonicSort.executor": "Debug",
+    "RunOnceActivity.RadMigrateCodeStyle": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "RunOnceActivity.west.config.association.type.startup.service": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "cf.advertisement.text.overridden": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Dalv/School/University/Classes/Semestrul3/PS/Proiect2/3Body",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "C:/Dalv/School/University/Classes/Semestrul2/SD/BitonicSort/main.cpp",
+    "settings.editor.selected.configurable": "CMakeSettings",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Dalv\Productivitiy\CodeProjects\Slime Mold OpenGL\cmake-build-release" />
+      <recent name="C:\Dalv\School\University\Classes\Semestrul2\SD\BitonicSort\Tests" />
+      <recent name="C:\Dalv\School\University\Classes\Semestrul2\SD\BitonicSort\src" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Dalv\Productivitiy\CodeProjects\Slime Mold OpenGL\libs\include\GLFW" />
+      <recent name="C:\Dalv\Productivitiy\CodeProjects\Slime Mold OpenGL\imgui\backends" />
+      <recent name="C:\Dalv\Productivitiy\CodeProjects\Slime Mold OpenGL\imgui" />
+      <recent name="C:\Dalv\Productivitiy\CodeProjects\Slime Mold OpenGL\libs\mingw" />
+      <recent name="C:\Dalv\School\University\Classes\Semestrul2\SD\BitonicSort\Classes" />
+    </key>
+  </component>
+  <component name="RunManager" selected="CMake Application.SlimeMold">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SlimeMold" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SlimeMold" TARGET_NAME="SlimeMold" CONFIG_NAME="Debug-MinGW" RUN_TARGET_PROJECT_NAME="SlimeMold" RUN_TARGET_NAME="SlimeMold">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Unnamed" type="CMakeRunConfiguration" factoryName="Application" nameIsGenerated="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug-MinGW" RUN_TARGET_PROJECT_NAME="SlimeMold" RUN_TARGET_NAME="BitonicSort" EXPLICIT_BUILD_TARGET_NAME="all">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="glad" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SlimeMold" TARGET_NAME="glad" CONFIG_NAME="Debug-MinGW">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="CMake Application.SlimeMold" />
+      <item itemvalue="CMake Application.Unnamed" />
+      <item itemvalue="CMake Application.glad" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="dfe77bcc-4f66-495f-82e1-a584774e14f1" name="Changes" comment="" />
+      <created>1742998243561</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1742998243561</updated>
+      <workItem from="1742998244870" duration="1782000" />
+      <workItem from="1743000438829" duration="45000" />
+      <workItem from="1743000568916" duration="713000" />
+      <workItem from="1743002233055" duration="216000" />
+      <workItem from="1743002532231" duration="69000" />
+      <workItem from="1743002616168" duration="481000" />
+      <workItem from="1743003127864" duration="30000" />
+      <workItem from="1743003171631" duration="8000" />
+      <workItem from="1743003201892" duration="159000" />
+      <workItem from="1743003387699" duration="168000" />
+      <workItem from="1743003565681" duration="377000" />
+      <workItem from="1743020337366" duration="822000" />
+      <workItem from="1743021178839" duration="1995000" />
+      <workItem from="1743023218983" duration="537000" />
+      <workItem from="1743091954871" duration="10975000" />
+      <workItem from="1743173413387" duration="3552000" />
+      <workItem from="1743255009777" duration="9118000" />
+      <workItem from="1743265531072" duration="2673000" />
+      <workItem from="1743272935195" duration="606000" />
+      <workItem from="1743319886366" duration="1443000" />
+      <workItem from="1743323920165" duration="5764000" />
+      <workItem from="1743335670940" duration="10438000" />
+      <workItem from="1743355853066" duration="566000" />
+      <workItem from="1743359193422" duration="151000" />
+      <workItem from="1743359363346" duration="1410000" />
+      <workItem from="1743404376453" duration="1866000" />
+      <workItem from="1743416493650" duration="114000" />
+      <workItem from="1743515385507" duration="588000" />
+      <workItem from="1743520719118" duration="239000" />
+      <workItem from="1743852206063" duration="5066000" />
+      <workItem from="1745264558068" duration="2838000" />
+      <workItem from="1745267438635" duration="1486000" />
+      <workItem from="1745268952998" duration="359000" />
+      <workItem from="1745269327824" duration="203000" />
+      <workItem from="1745269545457" duration="357000" />
+      <workItem from="1745269921309" duration="1000" />
+      <workItem from="1745270018441" duration="133000" />
+      <workItem from="1745270229757" duration="39000" />
+      <workItem from="1745270278772" duration="361000" />
+      <workItem from="1745270793641" duration="7723000" />
+      <workItem from="1745278600516" duration="32000" />
+      <workItem from="1745278680987" duration="1020000" />
+      <workItem from="1745311216640" duration="9204000" />
+      <workItem from="1745321204899" duration="1121000" />
+      <workItem from="1745325478731" duration="8989000" />
+      <workItem from="1745342537220" duration="1137000" />
+      <workItem from="1745356213205" duration="6998000" />
+      <workItem from="1745363364897" duration="102000" />
+      <workItem from="1745363713474" duration="1210000" />
+      <workItem from="1745676454389" duration="3000" />
+      <workItem from="1745758370760" duration="140000" />
+      <workItem from="1745760160337" duration="6000" />
+      <workItem from="1745939754823" duration="31000" />
+      <workItem from="1745951175536" duration="9000" />
+      <workItem from="1746022113459" duration="69000" />
+      <workItem from="1767006058635" duration="348000" />
+      <workItem from="1767006476595" duration="1638000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VCPKGProject">
+    <isAutomaticCheckingOnLaunch value="false" />
+    <isAutomaticFoundErrors value="true" />
+    <isAutomaticReloadCMake value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/Implementations/SlimeMoldGL.cpp</url>
+          <line>90</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/Implementations/SlimeMoldGL.cpp</url>
+          <line>55</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>
