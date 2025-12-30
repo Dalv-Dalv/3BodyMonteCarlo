@@ -43,19 +43,23 @@ void UIWrapper::applyPreset(int preset) {
 		initialBody[2]={ 0.0f, 0.346f, -0.161f, 0.0f, 1.0f, 0, 0, 1.0f};
 		break;
 	case 1:
-		initialBody[0] = {  0.0f,      1.1547f,  -0.5f,     0.0f,     1.0f, 1.0f, 0, 0};
-		initialBody[1] = { -1.0f,      -0.5773f,  0.25f,    -0.433f,  1.0f, 0, 1.0f, 0};
-		initialBody[2] = {  1.0f,      -0.5773f,  0.25f,     0.433f,  1.0f, 0, 0, 1.0f};
+		{
+		float mult=1.4;
+		initialBody[0] = {  0.0f,      1.1547f,  -0.5f*mult,     0.0f*mult,     1.0f, 1.0f, 0, 0};
+		initialBody[1] = { -1.0f,      -0.5773f,  0.25f*mult,    -0.433f*mult,  1.0f, 0, 1.0f, 0};
+		initialBody[2] = {  1.0f,      -0.5773f,  0.25f*mult,     0.433f*mult,  1.0f, 0, 0, 1.0f};
 		break;
+	}
 	case 2:
 		initialBody[0]={ -0.97000436,  0.24308753, 0.466203685,  0.43236573, 1.0f, 1.0f, 0, 0};
 		initialBody[1]={  0.97000436, -0.24308753,   0.466203685,  0.43236573, 1.0f, 0, 1.0f, 0};
 		initialBody[2]={ 0.0,0.0, -0.93240737,  -0.86473146, 1,0, 0, 1.0f};
 		break;
 	case 3:
-		initialBody[0] = { 0.1f,  0.3f, 0.0f, 0.0f, 3.0f, 1.0f, 0.8f, 0.0f };
-		initialBody[1] = { -0.2f, -0.1f, 0.0f, 0.0f, 4.0f, 0.0f, 0.8f, 1.0f };
-		initialBody[2] = { 0.1f, -0.1f, 0.0f, 0.0f, 5.0f, 1.0f, 0.0f, 0.8f };
+
+		initialBody[0] = { -1,0, 0.2374365149,0.2536896353, 1, 1.0f, 0.8f, 0.0f };
+		initialBody[1] = { 1,0, 0.2374365149,0.2536896353, 1, 0.0f, 0.8f, 1.0f };
+		initialBody[2] = { 0,0, -0.9497460596,-1.0147585412, 0.5, 1.0f, 0.0f, 0.8f };
 		break;
 	default:;
 	}
@@ -78,6 +82,7 @@ void UIWrapper::Render(int screenWidth, int screenHeight) {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 	ImGui::Begin("Slime mold simulation settings");
+	//ImGui::DragFloat(("Error Exponent" ),colorPtr);
 
 	ImGui::SliderInt("Time step", &sl_timeStep, 1, 20);
 	ImGui::SliderFloat("Trail diffusion rate", &sl_diffusionRate, 0.0f, 20.0f);
