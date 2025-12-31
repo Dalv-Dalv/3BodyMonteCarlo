@@ -9,6 +9,7 @@ class ThreeBodyGL {
 	GLFWwindow* window;
 	int screenWidth, screenHeight;
 	GLuint simBuffer;
+	GLuint visualizationTexture;
 	const int SIM_COUNT = 1000;
 
 	static void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
@@ -20,7 +21,7 @@ public:
 	~ThreeBodyGL();
 
 	void LoadData();
-	void Animate(int width, int height);
+	void Animate();
 
 	static GLuint LoadShader(GLenum type, const char* path);
 	static GLuint CreateComputeProgram(const char* shaderPath);

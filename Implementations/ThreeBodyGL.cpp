@@ -21,12 +21,10 @@ struct Simulation {
 };
 
 
-ThreeBodyGL::ThreeBodyGL(int screenWidth, int screenHeight, bool fullScreen)
-	: screenWidth(screenWidth), screenHeight(screenHeight) {
+ThreeBodyGL::ThreeBodyGL(int screenWidth, int screenHeight, bool fullScreen) : screenWidth(screenWidth), screenHeight(screenHeight) {
 	glfwInit();
 
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-	const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
 
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -59,11 +57,7 @@ ThreeBodyGL::~ThreeBodyGL() {
 }
 void ThreeBodyGL::LoadData() {
 	std::vector<Simulation> simulations(SIM_COUNT);
-	// Parametrii figura 8 (solutie stabila)
-	float px = 0.97000436;
-	float py = -0.24308753;
-	float vx = 0.466203685;
-	float vy = 0.43236573;
+
 	for(int i = 0; i < 1; i++) {
 		simulations[i].status = 1;
 		simulations[i].bodies[0] = UIWrapper::GetBody()[0];
@@ -75,18 +69,16 @@ void ThreeBodyGL::LoadData() {
 		simulations[i].bodies[0] = UIWrapper::GetBody()[0];
 		simulations[i].bodies[1] = UIWrapper::GetBody()[1];
 		simulations[i].bodies[2] = UIWrapper::GetBody()[2];
+
 		// Monte Carlo
 		float noiseScale = 0.001f;
 
-		for(int b=0; b<3; b++) {
+		for(int b = 0; b < 3; b++) {
 			float x, y;
 			Random::RandomPointInUnitCircle(x, y);
 
 			simulations[i].bodies[b].x += x * noiseScale;
 			simulations[i].bodies[b].y += y * noiseScale;
-
-			// simulations[i].bodies[b].x += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
-			// simulations[i].bodies[b].y += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
 		}
 	}
 
@@ -95,37 +87,34 @@ void ThreeBodyGL::LoadData() {
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Simulation) * simulations.size(), simulations.data(), GL_DYNAMIC_DRAW);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, simBuffer); // Binding 0 to match GLSL
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	// Reset texture
+	glGenTextures(1, &visualizationTexture);
+	glBindTexture(GL_TEXTURE_2D, visualizationTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 
-void ThreeBodyGL::Animate(int width, int height) {
-
-
-
+void ThreeBodyGL::Animate() {
 	static_assert(sizeof(Simulation) % 16 == 0);
-
 	std::cout << "Start Animating" << std::endl;
-	struct Agent {
-		float posx, posy;
-		float angle;
-	};
 
-	GLuint visualizationTexture;
 	glGenTextures(1, &visualizationTexture);
 	glBindTexture(GL_TEXTURE_2D, visualizationTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 
-	GLuint simBuffer;
 	glGenBuffers(1, &simBuffer);
 
 
 	GLuint computeProgram = CreateComputeProgram("Shaders/threeBody.comp");
 	glUseProgram(computeProgram);
-	glUniform1i(glGetUniformLocation(computeProgram, "width"), width);
-	glUniform1i(glGetUniformLocation(computeProgram, "height"), height);
+	glUniform1i(glGetUniformLocation(computeProgram, "width"), screenWidth);
+	glUniform1i(glGetUniformLocation(computeProgram, "height"), screenHeight);
 	glUniform1i(glGetUniformLocation(computeProgram, "simCount"), SIM_COUNT);
 	glUniform1f(glGetUniformLocation(computeProgram, "G"), 1.0f); // Constanta G
 	glUniform1f(glGetUniformLocation(computeProgram, "escapeThreshold"), 5.0f); // Distanța max
@@ -135,8 +124,8 @@ void ThreeBodyGL::Animate(int width, int height) {
 
 	GLuint evaporationComputeProgram = CreateComputeProgram("Shaders/trailEvaporation.comp");
 	glUseProgram(evaporationComputeProgram);
-	glUniform1i(glGetUniformLocation(evaporationComputeProgram, "width"), width);
-	glUniform1i(glGetUniformLocation(evaporationComputeProgram, "height"), height);
+	glUniform1i(glGetUniformLocation(evaporationComputeProgram, "width"), screenWidth);
+	glUniform1i(glGetUniformLocation(evaporationComputeProgram, "height"), screenHeight);
 	int evapCompDeltaTimeLoc = glGetUniformLocation(evaporationComputeProgram, "deltaTime");
 	int diffuseRateLoc = glGetUniformLocation(evaporationComputeProgram, "diffuseRate");
 	int decayRateLoc = glGetUniformLocation(evaporationComputeProgram, "decayRate");
@@ -179,7 +168,7 @@ void ThreeBodyGL::Animate(int width, int height) {
 			glUniform1f(decayRateLoc, UIWrapper::Get_DecayRate());
 			glUniform1f(evapCompDeltaTimeLoc, deltaTime);
 			glBindImageTexture(0, visualizationTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-			glDispatchCompute((width + 15) / 16, (height + 15) / 16, 1);
+			glDispatchCompute((screenWidth + 15) / 16, (screenHeight + 15) / 16, 1);
 
 			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
 		}

@@ -13,7 +13,7 @@ bool UIWrapper::key_pressed = false;
 int UIWrapper::sl_timeStep = 1;
 float UIWrapper::sl_trailWeight = 0.5;
 float UIWrapper::sl_diffusionRate = 1.0;
-float UIWrapper::sl_decayRate = 1.0;
+float UIWrapper::sl_decayRate = 0.01;
 float UIWrapper::sl_moveSpeed = 5.0;
 float UIWrapper::sl_turnSpeed = 5.0;
 float UIWrapper::sl_sensorAngleSpacing = 10.0;
@@ -57,9 +57,9 @@ void UIWrapper::applyPreset(int preset) {
 		break;
 	case 3:
 
-		initialBody[0] = { -1,0, 0.2374365149,0.2536896353, 1, 1.0f, 0.8f, 0.0f };
-		initialBody[1] = { 1,0, 0.2374365149,0.2536896353, 1, 0.0f, 0.8f, 1.0f };
-		initialBody[2] = { 0,0, -0.9497460596,-1.0147585412, 0.5, 1.0f, 0.0f, 0.8f };
+		initialBody[0] = { -1,0, 0.2374365149,0.2536896353, 1, 1.0f, 0.0f, 0.0f };
+		initialBody[1] = { 1,0, 0.2374365149,0.2536896353, 1, 0.0f, 1.0f, 0.0f };
+		initialBody[2] = { 0,0, -0.9497460596,-1.0147585412, 0.5, 0.0f, 0.0f, 1.0f };
 		break;
 	default:;
 	}
@@ -82,17 +82,13 @@ void UIWrapper::Render(int screenWidth, int screenHeight) {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 	ImGui::Begin("Slime mold simulation settings");
-	//ImGui::DragFloat(("Error Exponent" ),colorPtr);
 
 	ImGui::SliderInt("Time step", &sl_timeStep, 1, 20);
 	ImGui::SliderFloat("Trail diffusion rate", &sl_diffusionRate, 0.0f, 20.0f);
 	ImGui::SliderFloat("Trail decay rate", &sl_decayRate, 0.001f, 1.0f);
 	for(int i=0;i<3;i++) {
 
-		ImGui::Text(("Ball "+std::to_string(i)).c_str());
-		float* colorPtr = reinterpret_cast<float*>(
-			reinterpret_cast<char*>(&initialBody[i]) + offsetof(Body, r)
-		);
+		ImGui::Text(("Body "+std::to_string(i)).c_str());
 		float* posPtr = reinterpret_cast<float*>(
 			reinterpret_cast<char*>(&initialBody[i]) + offsetof(Body, x)
 		);
@@ -102,7 +98,6 @@ void UIWrapper::Render(int screenWidth, int screenHeight) {
 		ImGui::SliderFloat(("Mass##"+std::to_string(i)).c_str(),&initialBody[i].mass , 0.0f, 5.0f);
 		ImGui::DragFloat2(("Speed##"+ std::to_string(i)).c_str(), speedPtr, 0.0f, -1.0f, 1.0f);
 		ImGui::DragFloat2(("Pos##" + std::to_string(i)).c_str(),posPtr,0,-1,1);
-		ImGui::ColorEdit3(("Color##" + std::to_string(i)).c_str(),colorPtr);
 	}
 	if(ImGui::Button("Start Sim")) {
 		restart=true;
@@ -110,7 +105,7 @@ void UIWrapper::Render(int screenWidth, int screenHeight) {
 	const char* presets[] = {
 		"Something",
 		"Lagrange Equilateral triangle",
-		"8 figure",
+		"Infinity",
 		"Random stable-ish"
 	};
 	static int currentPreset = 0;
