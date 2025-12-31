@@ -25,7 +25,62 @@ struct Simulation {
 };
 
 
-ThreeBodyGL::ThreeBodyGL(int screenWidth, int screenHeight, bool fullScreen) : screenWidth(screenWidth), screenHeight(screenHeight) {
+
+
+void AnalyzeStatistics(const std::vector <Simulation> &data) {
+	SimStats s = UIWrapper::stats;
+	s.alive = 0; s.collisions = 0; s.ejections = 0;
+	float G = 1;
+	double currentTotalEnergy = 0.0;
+	for(auto sim : data) {
+		if(sim.status == 1) {
+			s.alive ++;
+			// Calcul Energie Cinetica (K = 1/2 * m * v^2)
+			// Calcul Energie Potentiala (V = -G * m1 * m2 / r)
+			double K = 0, V = 0;
+			for(int i=0; i<3; i++) {
+				float vx = sim.bodies[i].vx;
+				float vy = sim.bodies[i].vy;
+				K += 0.5 * sim.bodies[i].mass * (vx*vx + vy*vy);
+
+				for(int j=i+1; j<3; j++) {
+					float dx = sim.bodies[i].x - sim.bodies[j].x;
+					float dy = sim.bodies[i].y - sim.bodies[j].y;
+					float dist = std::sqrt(dx*dx + dy*dy) + 0.01f;
+					V -= (G * sim.bodies[i].mass * sim.bodies[j].mass) / dist;
+				}
+			}
+			currentTotalEnergy += (K + V);
+		}
+		else if(sim.status == 2) s.collisions ++;
+		else if(sim.status == 3) s.ejections ++;
+	}
+	s.survivalProb = s.alive * 1. / data.size();
+	//TODO poate le luam din UI
+	float trust = 0.95;
+	float alpha = 1 - trust;
+	s.hoeffdingError = std::sqrt(std::log(2.0f / alpha) / (2.0f * data.size()));
+
+	s.survivalHistory.push_back(s.survivalProb);
+	if(s.survivalHistory.size() > 100) { // patram ultimele 100 sec
+		s.survivalHistory.erase(s.survivalHistory.begin());
+	}
+	if (s.alive > 0) {
+		s.totalEnergyMean = currentTotalEnergy * 1. / s.alive;
+		if (UIWrapper::restart || s.initialEnergy == 0)
+			s.initialEnergy = s.totalEnergyMean;
+		s.energyDrift = std::abs(s.totalEnergyMean - s.initialEnergy);
+	}
+
+	UIWrapper::UpdateStats(s);
+}
+
+
+
+
+
+ThreeBodyGL::ThreeBodyGL(int screenWidth, int screenHeight, bool fullScreen)
+	: screenWidth(screenWidth), screenHeight(screenHeight) {
 	glfwInit();
 
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -60,7 +115,9 @@ ThreeBodyGL::~ThreeBodyGL() {
 	glfwTerminate();
 }
 void ThreeBodyGL::LoadData() {
-	std::vector<Simulation> simulations(SIM_COUNT);
+	simCount = UIWrapper::ui_SIM_COUNT;
+	UIWrapper::stats = {};
+	std::vector<Simulation> simulations(simCount);
 
 	// First simulation in perfectly stable condition
 	simulations[0].status = 1;
@@ -68,7 +125,7 @@ void ThreeBodyGL::LoadData() {
 	simulations[0].bodies[1] = UIWrapper::GetBody()[1];
 	simulations[0].bodies[2] = UIWrapper::GetBody()[2];
 
-	for(int i = 1; i < SIM_COUNT; i++) {
+	for(int i = 1; i < simCount; i++) {
 		simulations[i].status = 1;
 		simulations[i].bodies[0] = UIWrapper::GetBody()[0];
 		simulations[i].bodies[1] = UIWrapper::GetBody()[1];
@@ -104,6 +161,8 @@ void ThreeBodyGL::LoadData() {
 void ThreeBodyGL::Animate() {
 	static_assert(sizeof(Simulation) % 16 == 0);
 
+	LoadData();
+
 	Palette crntPalette = UIWrapper::GetPalette();
 	Palette targetPalette = crntPalette;
 
@@ -128,7 +187,7 @@ void ThreeBodyGL::Animate() {
 	glUseProgram(computeProgram);
 	glUniform1i(glGetUniformLocation(computeProgram, "width"), screenWidth);
 	glUniform1i(glGetUniformLocation(computeProgram, "height"), screenHeight);
-	glUniform1i(glGetUniformLocation(computeProgram, "simCount"), SIM_COUNT);
+	glUniform1i(glGetUniformLocation(computeProgram, "simCount"), simCount);
 	glUniform1f(glGetUniformLocation(computeProgram, "G"), 1.0f); // Constanta G
 	glUniform1f(glGetUniformLocation(computeProgram, "escapeThreshold"), 5.0f); // Distanța max
 	glUniform1f(glGetUniformLocation(computeProgram, "collisionThreshold"), 0.01f); // Distanța max
@@ -162,6 +221,7 @@ void ThreeBodyGL::Animate() {
 	float prevTime = 0;
 	float deltaTime = 0;
 	float hideTrailLerp = 0;
+	float lastStatTime = 0;
 	UIWrapper::restart=true;
 	float clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 	std::cout << "Start Animating" << std::endl;
@@ -189,7 +249,7 @@ void ThreeBodyGL::Animate() {
 			glBindImageTexture(0, trailTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 			glBindImageTexture(1, bodiesTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, simBuffer);
-			glDispatchCompute((SIM_COUNT + 255) / 256, 1, 1);
+			glDispatchCompute((simCount + 255) / 256, 1, 1);
 
 			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
 
@@ -220,6 +280,23 @@ void ThreeBodyGL::Animate() {
 
 		glBindVertexArray(fullscreenQuad);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		if(currentTime - lastStatTime >= 1.0f) {
+			lastStatTime = currentTime;
+
+			std::vector<Simulation> cpuSimData(simCount);
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, simBuffer);
+
+			GLint actualBufferSize = 0;
+			glGetBufferParameteriv(GL_SHADER_STORAGE_BUFFER, GL_BUFFER_SIZE, &actualBufferSize);
+
+			if(actualBufferSize >= (GLint)(sizeof(Simulation) * simCount)) {
+				glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Simulation) * simCount, cpuSimData.data());
+				AnalyzeStatistics(cpuSimData);
+			}
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		}
+
 
 		UIWrapper::Render(screenWidth, screenHeight);
 

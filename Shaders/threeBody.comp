@@ -19,7 +19,7 @@ struct Body {
 
 struct Simulation {
     Body bodies[3];
-    int status;
+    int status; // 1 = activ, 2 = coliziune, 3 = expulzare
     float pad1, pad2, pad3;
 };
 
@@ -48,7 +48,7 @@ void main() {
     uint idx = gl_GlobalInvocationID.x;
     if (idx >= simulations.length()) return;
 
-    if (simulations[idx].status == 0) {
+    if (simulations[idx].status != 1) {
         vec2 center = vec2(width, height) / 2.0;
         float scale = min(width, height) / 4.0;
         for(int i=0; i<3; i++) {
@@ -80,18 +80,18 @@ void main() {
     float m1 = simulations[idx].bodies[1].mass;
     float m2 = simulations[idx].bodies[2].mass;
 
-    if(length(pos0-pos1) < collisionThreshold){
-        simulations[idx].status=0;
+
+    //coliziune
+    if(length(pos0-pos1) < collisionThreshold || length(pos1-pos2) < collisionThreshold || length(pos0-pos2) < collisionThreshold) {
+        simulations[idx].status = 2;
         return;
     }
-    if(length(pos1-pos2) < collisionThreshold){
-        simulations[idx].status=0;
+    //expulzare
+    if(length(pos0) > escapeThreshold || length(pos1) > escapeThreshold || length(pos2) > escapeThreshold) {
+        simulations[idx].status = 3;
         return;
     }
-    if(length(pos0-pos2) < collisionThreshold){
-        simulations[idx].status=0;
-        return;
-    }
+
     float eps = 0.01;
 
     vec2 r01 = pos1 - pos0;
