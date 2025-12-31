@@ -37,12 +37,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dfe77bcc-4f66-495f-82e1-a584774e14f1" name="Changes" comment="Fixes Equalateral triangle">
+      <change afterPath="$PROJECT_DIR$/Implementations/Palette.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Implementations/ThreeBodyGL.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Implementations/ThreeBodyGL.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Implementations/ThreeBodyGL.h" beforeDir="false" afterPath="$PROJECT_DIR$/Implementations/ThreeBodyGL.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Implementations/UIWrapper.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Implementations/UIWrapper.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Implementations/UIWrapper.h" beforeDir="false" afterPath="$PROJECT_DIR$/Implementations/UIWrapper.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shaders/threeBody.comp" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/threeBody.comp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Shaders/threeBody.frag" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/threeBody.frag" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -149,6 +151,11 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.ThreeBody">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ThreeBody" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ThreeBody" TARGET_NAME="ThreeBody" CONFIG_NAME="Debug-MinGW" RUN_TARGET_PROJECT_NAME="ThreeBody" RUN_TARGET_NAME="ThreeBody">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />

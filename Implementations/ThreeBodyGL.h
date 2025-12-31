@@ -9,7 +9,7 @@ class ThreeBodyGL {
 	GLFWwindow* window;
 	int screenWidth, screenHeight;
 	GLuint simBuffer;
-	GLuint visualizationTexture;
+	GLuint trailTexture, bodiesTexture;
 	const int SIM_COUNT = 1000;
 
 	static void FramebufferSizeCallback(GLFWwindow* window, int width, int height);

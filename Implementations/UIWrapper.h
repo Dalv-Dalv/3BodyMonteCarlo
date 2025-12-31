@@ -23,6 +23,7 @@ private:
 
 public:
 	static bool restart;
+	static bool hideTrail;
 	static void Initialize(GLFWwindow* window);
 	static void applyPreset(int preset);
 	static void Render(int screenWidth, int screenHeight);

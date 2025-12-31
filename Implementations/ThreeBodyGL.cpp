@@ -11,9 +11,13 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+
 #include "../Utils/Random.h"
 #include "../include/stb_image_write.h"
+#include "Palette.h"
 #include "UIWrapper.h"
+
+
 struct Simulation {
 	Body bodies[3];  // 3 * 32 bytes = 96 bytes
 	int status;      // 4 bytes (1 = stabil, 0 = coliziune/expulzat)
@@ -58,12 +62,12 @@ ThreeBodyGL::~ThreeBodyGL() {
 void ThreeBodyGL::LoadData() {
 	std::vector<Simulation> simulations(SIM_COUNT);
 
-	for(int i = 0; i < 1; i++) {
-		simulations[i].status = 1;
-		simulations[i].bodies[0] = UIWrapper::GetBody()[0];
-		simulations[i].bodies[1] = UIWrapper::GetBody()[1];
-		simulations[i].bodies[2] = UIWrapper::GetBody()[2];
-	}
+	// First simulation in perfectly stable condition
+	simulations[0].status = 1;
+	simulations[0].bodies[0] = UIWrapper::GetBody()[0];
+	simulations[0].bodies[1] = UIWrapper::GetBody()[1];
+	simulations[0].bodies[2] = UIWrapper::GetBody()[2];
+
 	for(int i = 1; i < SIM_COUNT; i++) {
 		simulations[i].status = 1;
 		simulations[i].bodies[0] = UIWrapper::GetBody()[0];
@@ -89,8 +93,8 @@ void ThreeBodyGL::LoadData() {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	// Reset texture
-	glGenTextures(1, &visualizationTexture);
-	glBindTexture(GL_TEXTURE_2D, visualizationTexture);
+	glGenTextures(1, &trailTexture);
+	glBindTexture(GL_TEXTURE_2D, trailTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -99,10 +103,15 @@ void ThreeBodyGL::LoadData() {
 
 void ThreeBodyGL::Animate() {
 	static_assert(sizeof(Simulation) % 16 == 0);
-	std::cout << "Start Animating" << std::endl;
 
-	glGenTextures(1, &visualizationTexture);
-	glBindTexture(GL_TEXTURE_2D, visualizationTexture);
+	glGenTextures(1, &trailTexture);
+	glBindTexture(GL_TEXTURE_2D, trailTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glGenTextures(1, &bodiesTexture);
+	glBindTexture(GL_TEXTURE_2D, bodiesTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -118,7 +127,7 @@ void ThreeBodyGL::Animate() {
 	glUniform1i(glGetUniformLocation(computeProgram, "simCount"), SIM_COUNT);
 	glUniform1f(glGetUniformLocation(computeProgram, "G"), 1.0f); // Constanta G
 	glUniform1f(glGetUniformLocation(computeProgram, "escapeThreshold"), 5.0f); // Distanța max
-	glUniform1f(glGetUniformLocation(computeProgram, "collisionThreshold"), 0.00001f); // Distanța max
+	glUniform1f(glGetUniformLocation(computeProgram, "collisionThreshold"), 0.01f); // Distanța max
 	glUniform1f(glGetUniformLocation(computeProgram, "deltaTime"), 0.0005f);
 	int compTimeLoc = glGetUniformLocation(computeProgram, "time");
 
@@ -132,10 +141,12 @@ void ThreeBodyGL::Animate() {
 
 	auto fullscreenQuad = GetFullscreenQuad();
 	GLuint fragmentShaderProgram = CreateShaderProgram("Shaders/defaultVertex.vert", "Shaders/threeBody.frag");
-	int fragTextureLoc = glGetUniformLocation(fragmentShaderProgram, "visualizationTexture");
+	int fragTextureLoc = glGetUniformLocation(fragmentShaderProgram, "trailTexture");
+	int fragBodiesTextureLoc = glGetUniformLocation(fragmentShaderProgram, "bodiesTexture");
 	int fragWidthLoc = glGetUniformLocation(fragmentShaderProgram, "width");
 	int fragHeightLoc = glGetUniformLocation(fragmentShaderProgram, "height");
 	int fragTimeLoc = glGetUniformLocation(fragmentShaderProgram, "time");
+	int fragHideTrailLoc = glGetUniformLocation(fragmentShaderProgram, "hideTrail");
 
 	glUseProgram(fragmentShaderProgram);
 	glUniform1i(fragWidthLoc, screenWidth);
@@ -143,10 +154,14 @@ void ThreeBodyGL::Animate() {
 
 	float prevTime = 0;
 	float deltaTime = 0;
+	float hideTrailLerp = 0;
 	int sl_timeStep = UIWrapper::Get_TimeStep();
 	UIWrapper::restart=true;
+	float clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	std::cout << "Start Animating" << std::endl;
 	while(!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT);
+		glClearTexImage(bodiesTexture, 0, GL_RGBA, GL_FLOAT, clearColor);
 
 		float currentTime = glfwGetTime();
 		deltaTime = currentTime - prevTime;
@@ -157,7 +172,8 @@ void ThreeBodyGL::Animate() {
 			glUseProgram(computeProgram);
 			glUniform1f(compTimeLoc, currentTime);
 
-			glBindImageTexture(0, visualizationTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+			glBindImageTexture(0, trailTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+			glBindImageTexture(1, bodiesTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, simBuffer);
 			glDispatchCompute((SIM_COUNT + 255) / 256, 1, 1);
 
@@ -167,7 +183,7 @@ void ThreeBodyGL::Animate() {
 			glUniform1f(diffuseRateLoc, UIWrapper::Get_DiffusionRate());
 			glUniform1f(decayRateLoc, UIWrapper::Get_DecayRate());
 			glUniform1f(evapCompDeltaTimeLoc, deltaTime);
-			glBindImageTexture(0, visualizationTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+			glBindImageTexture(0, trailTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 			glDispatchCompute((screenWidth + 15) / 16, (screenHeight + 15) / 16, 1);
 
 			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
@@ -175,9 +191,15 @@ void ThreeBodyGL::Animate() {
 
 		glUseProgram(fragmentShaderProgram);
 		glUniform1f(fragTimeLoc, currentTime);
+		hideTrailLerp = hideTrailLerp * (1.0f - deltaTime * 2.0f) + (UIWrapper::hideTrail ? 1.0f : 0.0f) * deltaTime * 2.0f;
+		glUniform1f(fragHideTrailLoc, hideTrailLerp);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, visualizationTexture);
+		glBindTexture(GL_TEXTURE_2D, trailTexture);
 		glUniform1i(fragTextureLoc, 0);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, bodiesTexture);
+		glUniform1i(fragBodiesTextureLoc, 1);
 
 		glBindVertexArray(fullscreenQuad);
 		glDrawArrays(GL_TRIANGLES, 0, 6);

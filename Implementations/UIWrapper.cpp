@@ -9,6 +9,7 @@
 GLFWwindow* UIWrapper::window = nullptr;
 bool UIWrapper::showUI = false;
 bool UIWrapper::restart = true;
+bool UIWrapper::hideTrail = false;
 bool UIWrapper::key_pressed = false;
 int UIWrapper::sl_timeStep = 1;
 float UIWrapper::sl_trailWeight = 0.5;
@@ -51,9 +52,9 @@ void UIWrapper::applyPreset(int preset) {
 		break;
 	}
 	case 2:
-		initialBody[0]={ -0.97000436,  0.24308753, 0.466203685,  0.43236573, 1.0f, 1.0f, 0, 0};
-		initialBody[1]={  0.97000436, -0.24308753,   0.466203685,  0.43236573, 1.0f, 0, 1.0f, 0};
-		initialBody[2]={ 0.0,0.0, -0.93240737,  -0.86473146, 1,0, 0, 1.0f};
+		initialBody[0]={0.97000436, -0.24308753, 0.466203685, 0.43236573,  1.0f, 1.0f, 0, 0};
+		initialBody[1]={-0.97000436, 0.24308753, 0.466203685, 0.43236573, 1.0f, 0, 1.0f, 0};
+		initialBody[2]={0, 0, -2*0.466203685, -2*0.43236573, 1.0f, 0, 0, 1.0f};
 		break;
 	case 3:
 
@@ -99,6 +100,9 @@ void UIWrapper::Render(int screenWidth, int screenHeight) {
 		ImGui::DragFloat2(("Speed##"+ std::to_string(i)).c_str(), speedPtr, 0.0f, -1.0f, 1.0f);
 		ImGui::DragFloat2(("Pos##" + std::to_string(i)).c_str(),posPtr,0,-1,1);
 	}
+
+	ImGui::Checkbox("Hide trails", &hideTrail);
+
 	if(ImGui::Button("Start Sim")) {
 		restart=true;
 	};

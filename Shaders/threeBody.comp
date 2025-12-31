@@ -2,7 +2,8 @@
 #extension GL_ARB_compute_shader: enable
 layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
-layout(rgba32f, binding = 0) uniform image2D visualizationTexture;
+layout(rgba32f, binding = 0) uniform image2D trailTexture;
+layout(rgba32f, binding = 1) uniform image2D bodiesTexture;
 uniform int simCount;
 uniform int width, height;
 uniform float time;
@@ -26,6 +27,23 @@ layout(std430, binding = 0) buffer SimBuffer {
     Simulation simulations[];
 };
 
+void drawBodyAt(ivec2 pos, vec4 col) {
+    const int radius = 3;
+    for(int x = -radius; x <= radius; x++) {
+        for(int y = -radius; y <= radius; y++) {
+            float sqrDist = x*x + y*y;
+            if(sqrDist > radius*radius) continue;
+
+            float distRatio = sqrDist / (radius * radius);
+            ivec2 p = pos + ivec2(x, y);
+
+            if(p.x >= 0 && p.x < width && p.y >= 0 && p.y < height){
+                imageStore(bodiesTexture, p, vec4(col.rgb, (1.0 - distRatio)));
+            }
+        }
+    }
+}
+
 void main() {
     uint idx = gl_GlobalInvocationID.x;
     if (idx >= simulations.length()) return;
@@ -43,8 +61,9 @@ void main() {
             ivec2 screenPos = ivec2(center + worldPos * scale);
 
             if(screenPos.x >= 0 && screenPos.x < width && screenPos.y >= 0 && screenPos.y < height) {
-                imageStore(visualizationTexture, screenPos, color);
+                imageStore(trailTexture, screenPos, color);
             }
+            drawBodyAt(screenPos, color);
         }
         return;
     }
@@ -121,7 +140,8 @@ void main() {
         ivec2 screenPos = ivec2(center + worldPos * scale);
 
         if(screenPos.x >= 0 && screenPos.x < width && screenPos.y >= 0 && screenPos.y < height) {
-            imageStore(visualizationTexture, screenPos, color);
+            imageStore(trailTexture, screenPos, color);
         }
+        drawBodyAt(screenPos, color);
     }
 }
