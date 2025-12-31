@@ -15,9 +15,9 @@ vec4 toneMap(vec4 color, float exposure) {
 }
 
 
-const vec3 body1Col = vec3(1.0, 0, 0.3647);
-const vec3 body2Col = vec3(0.0117, 0.4509, 0.9882);
-const vec3 body3Col = vec3(1.0, 0.8078, 0.6);
+uniform vec3 body1Col = vec3(1.0, 0, 0.0547);
+uniform vec3 body2Col = vec3(0.0117, 0.3509, 0.9882);
+uniform vec3 body3Col = vec3(1.0, 0.8078, 0.6);
 
 float smoothstep(float t){
     return t*t*(3 - 2 * t);

@@ -104,6 +104,10 @@ void ThreeBodyGL::LoadData() {
 void ThreeBodyGL::Animate() {
 	static_assert(sizeof(Simulation) % 16 == 0);
 
+	Palette crntPalette = UIWrapper::GetPalette();
+	Palette targetPalette = crntPalette;
+
+
 	glGenTextures(1, &trailTexture);
 	glBindTexture(GL_TEXTURE_2D, trailTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
@@ -147,6 +151,9 @@ void ThreeBodyGL::Animate() {
 	int fragHeightLoc = glGetUniformLocation(fragmentShaderProgram, "height");
 	int fragTimeLoc = glGetUniformLocation(fragmentShaderProgram, "time");
 	int fragHideTrailLoc = glGetUniformLocation(fragmentShaderProgram, "hideTrail");
+	int fragB1ColLoc = glGetUniformLocation(fragmentShaderProgram, "body1Col");
+	int fragB2ColLoc = glGetUniformLocation(fragmentShaderProgram, "body2Col");
+	int fragB3ColLoc = glGetUniformLocation(fragmentShaderProgram, "body3Col");
 
 	glUseProgram(fragmentShaderProgram);
 	glUniform1i(fragWidthLoc, screenWidth);
@@ -155,7 +162,6 @@ void ThreeBodyGL::Animate() {
 	float prevTime = 0;
 	float deltaTime = 0;
 	float hideTrailLerp = 0;
-	int sl_timeStep = UIWrapper::Get_TimeStep();
 	UIWrapper::restart=true;
 	float clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 	std::cout << "Start Animating" << std::endl;
@@ -167,8 +173,16 @@ void ThreeBodyGL::Animate() {
 		deltaTime = currentTime - prevTime;
 		prevTime = currentTime;
 
-		sl_timeStep = UIWrapper::Get_TimeStep();
-		for(int i = 0; i < sl_timeStep; i++) {
+		// Interpolate between palettes
+		float colorLerpSpeed = 2.0f * deltaTime;
+		targetPalette = UIWrapper::GetPalette();
+		for(int i = 0; i < 3; i++) {
+			crntPalette.c1[i] += (targetPalette.c1[i] - crntPalette.c1[i]) * colorLerpSpeed;
+			crntPalette.c2[i] += (targetPalette.c2[i] - crntPalette.c2[i]) * colorLerpSpeed;
+			crntPalette.c3[i] += (targetPalette.c3[i] - crntPalette.c3[i]) * colorLerpSpeed;
+		}
+
+		for(int i = 0; i < UIWrapper::Get_TimeStep(); i++) {
 			glUseProgram(computeProgram);
 			glUniform1f(compTimeLoc, currentTime);
 
@@ -193,6 +207,9 @@ void ThreeBodyGL::Animate() {
 		glUniform1f(fragTimeLoc, currentTime);
 		hideTrailLerp = hideTrailLerp * (1.0f - deltaTime * 2.0f) + (UIWrapper::hideTrail ? 1.0f : 0.0f) * deltaTime * 2.0f;
 		glUniform1f(fragHideTrailLoc, hideTrailLerp);
+		glUniform3fv(fragB1ColLoc, 1, crntPalette.c1);
+		glUniform3fv(fragB2ColLoc, 1, crntPalette.c2);
+		glUniform3fv(fragB3ColLoc, 1, crntPalette.c3);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, trailTexture);
 		glUniform1i(fragTextureLoc, 0);
