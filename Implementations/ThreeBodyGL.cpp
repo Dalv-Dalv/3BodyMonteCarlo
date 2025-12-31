@@ -56,17 +56,15 @@ void AnalyzeStatistics(const std::vector <Simulation> &data) {
 		else if(sim.status == 3) s.ejections ++;
 	}
 	s.survivalProb = s.alive * 1. / data.size();
-	//TODO poate le luam din UI
-	float trust = 0.95;
-	float alpha = 1 - trust;
-	s.hoeffdingError = std::sqrt(std::log(2.0f / alpha) / (2.0f * data.size()));
+	float alpha = UIWrapper::sl_alpha;
+    s.hoeffdingError = std::sqrt(std::log(2.0f / alpha) / (2.0f * data.size()));
 
 	s.survivalHistory.push_back(s.survivalProb);
 	if(s.survivalHistory.size() > 100) { // patram ultimele 100 sec
 		s.survivalHistory.erase(s.survivalHistory.begin());
 	}
 	if (s.alive > 0) {
-		s.totalEnergyMean = currentTotalEnergy * 1. / s.alive;
+		s.totalEnergyMean = s.totalEnergyMean = (float)(currentTotalEnergy / (double)s.alive);;
 		if (UIWrapper::restart || s.initialEnergy == 0)
 			s.initialEnergy = s.totalEnergyMean;
 		s.energyDrift = std::abs(s.totalEnergyMean - s.initialEnergy);
@@ -192,8 +190,6 @@ void ThreeBodyGL::Animate() {
 	glUniform1f(glGetUniformLocation(computeProgram, "escapeThreshold"), 5.0f); // Distanța max
 	glUniform1f(glGetUniformLocation(computeProgram, "collisionThreshold"), 0.01f); // Distanța max
 	glUniform1f(glGetUniformLocation(computeProgram, "deltaTime"), 0.0005f);
-	glUniform1f(glGetUniformLocation(computeProgram, "stepMethod"), 1);
-	// 0
 	int compTimeLoc = glGetUniformLocation(computeProgram, "time");
 
 	GLuint evaporationComputeProgram = CreateComputeProgram("Shaders/trailEvaporation.comp");
@@ -247,6 +243,9 @@ void ThreeBodyGL::Animate() {
 		for(int i = 0; i < UIWrapper::Get_TimeStep(); i++) {
 			glUseProgram(computeProgram);
 			glUniform1f(compTimeLoc, currentTime);
+			glUniform1i(glGetUniformLocation(computeProgram, "stepMethod"), UIWrapper::sl_stepMethod);
+
+
 
 			glBindImageTexture(0, trailTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 			glBindImageTexture(1, bodiesTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);

@@ -38,11 +38,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dfe77bcc-4f66-495f-82e1-a584774e14f1" name="Changes" comment="Fixes Equalateral triangle">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Implementations/ThreeBodyGL.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Implementations/ThreeBodyGL.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Implementations/UIWrapper.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Implementations/UIWrapper.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Implementations/UIWrapper.h" beforeDir="false" afterPath="$PROJECT_DIR$/Implementations/UIWrapper.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Shaders/threeBody.comp" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/threeBody.comp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -275,7 +272,7 @@
       <workItem from="1767177614928" duration="5409000" />
       <workItem from="1767186351302" duration="8746000" />
       <workItem from="1767196653951" duration="611000" />
-      <workItem from="1767207623102" duration="957000" />
+      <workItem from="1767207623102" duration="7731000" />
     </task>
     <task id="LOCAL-00001" summary="Nicer UI and predeterminated stable states">
       <option name="closed" value="true" />
