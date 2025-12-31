@@ -19,6 +19,8 @@ private:
 	static float sl_diffusionRate;
 	static float sl_decayRate;
 
+	static bool enableFpsCap;
+
 	static std::vector<Palette> colorPresets;
 
 public:

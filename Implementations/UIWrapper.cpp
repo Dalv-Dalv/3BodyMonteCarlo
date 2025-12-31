@@ -17,6 +17,8 @@ float UIWrapper::sl_trailWeight = 0.5;
 float UIWrapper::sl_diffusionRate = 1.0;
 float UIWrapper::sl_decayRate = 0.01;
 
+bool UIWrapper::enableFpsCap = true;
+
 int UIWrapper::selectedPaletteIndex = 0;
 std::vector<Palette> UIWrapper::colorPresets = {
 	{ {1.0f, 0.0f, 0.36f}, {0.01f, 0.35f, 0.98f}, {1.0f, 0.8f, 0.6f} }, // 0: Original
@@ -131,6 +133,11 @@ void UIWrapper::Render(int screenWidth, int screenHeight) {
 		ImGui::ColorEdit3("Body 2", customCol2);
 		ImGui::ColorEdit3("Body 3", customCol3);
 	}
+
+	if (ImGui::Checkbox("Enable FPS Cap", &enableFpsCap)) {
+		glfwSwapInterval(enableFpsCap ? 1 : 0);
+	}
+	ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
 
 	ImGui::End();
 
