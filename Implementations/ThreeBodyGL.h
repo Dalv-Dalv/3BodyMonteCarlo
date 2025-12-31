@@ -9,8 +9,8 @@ class ThreeBodyGL {
 	GLFWwindow* window;
 	int screenWidth, screenHeight;
 	GLuint simBuffer;
-	GLuint trailTexture, bodiesTexture;
-	const int SIM_COUNT = 1000;
+	int SIM_COUNT = 1;
+
 
 	static void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 
@@ -21,10 +21,11 @@ public:
 	~ThreeBodyGL();
 
 	void LoadData();
-	void Animate();
+	void Animate(int width, int height);
 
 	static GLuint LoadShader(GLenum type, const char* path);
 	static GLuint CreateComputeProgram(const char* shaderPath);
 	static GLuint CreateShaderProgram(const char* vertexPath, const char* fragmentPath);
 	static void SaveTexture(GLuint textureID, int width, int height, const char* filename);
 };
+

@@ -11,24 +11,77 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-
 #include "../Utils/Random.h"
 #include "../include/stb_image_write.h"
-#include "Palette.h"
 #include "UIWrapper.h"
-
-
 struct Simulation {
 	Body bodies[3];  // 3 * 32 bytes = 96 bytes
-	int status;      // 4 bytes (1 = stabil, 0 = coliziune/expulzat)
+	int status;      // 4 bytes (1 = stabil, 2/3 = coliziune/expulzat)
 	float padding[3];// 12 bytes padding
 };
 
 
-ThreeBodyGL::ThreeBodyGL(int screenWidth, int screenHeight, bool fullScreen) : screenWidth(screenWidth), screenHeight(screenHeight) {
+
+
+void AnalyzeStatistics(const std::vector <Simulation> &data) {
+	SimStats s = UIWrapper::stats;
+	s.alive = 0; s.collisions = 0; s.ejections = 0;
+	float G = 1;
+	double currentTotalEnergy = 0.0;
+	for(auto sim : data) {
+		if(sim.status == 1) {
+			s.alive ++;
+			// Calcul Energie Cinetica (K = 1/2 * m * v^2)
+			// Calcul Energie Potentiala (V = -G * m1 * m2 / r)
+			double K = 0, V = 0;
+			for(int i=0; i<3; i++) {
+				float vx = sim.bodies[i].vx;
+				float vy = sim.bodies[i].vy;
+				K += 0.5 * sim.bodies[i].mass * (vx*vx + vy*vy);
+
+				for(int j=i+1; j<3; j++) {
+					float dx = sim.bodies[i].x - sim.bodies[j].x;
+					float dy = sim.bodies[i].y - sim.bodies[j].y;
+					float dist = std::sqrt(dx*dx + dy*dy) + 0.01f;
+					V -= (G * sim.bodies[i].mass * sim.bodies[j].mass) / dist;
+				}
+			}
+			currentTotalEnergy += (K + V);
+		}
+		else if(sim.status == 2) s.collisions ++;
+		else if(sim.status == 3) s.ejections ++;
+	}
+	s.survivalProb = s.alive * 1. / data.size();
+	//TODO poate le luam din UI
+	float trust = 0.95;
+	float alpha = 1 - trust;
+	s.hoeffdingError = std::sqrt(std::log(2.0f / alpha) / (2.0f * data.size()));
+
+	s.survivalHistory.push_back(s.survivalProb);
+	if(s.survivalHistory.size() > 100) { // patram ultimele 100 sec
+		s.survivalHistory.erase(s.survivalHistory.begin());
+	}
+	if (s.alive > 0) {
+		s.totalEnergyMean = currentTotalEnergy * 1. / s.alive;
+		if (UIWrapper::restart || s.initialEnergy == 0)
+			s.initialEnergy = s.totalEnergyMean;
+		s.energyDrift = std::abs(s.totalEnergyMean - s.initialEnergy);
+	}
+
+	UIWrapper::UpdateStats(s);
+
+}
+
+
+
+
+
+ThreeBodyGL::ThreeBodyGL(int screenWidth, int screenHeight, bool fullScreen)
+	: screenWidth(screenWidth), screenHeight(screenHeight) {
 	glfwInit();
 
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
 
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -60,100 +113,230 @@ ThreeBodyGL::~ThreeBodyGL() {
 	glfwTerminate();
 }
 void ThreeBodyGL::LoadData() {
+	SIM_COUNT = UIWrapper::ui_SIM_COUNT;
 	std::vector<Simulation> simulations(SIM_COUNT);
 
-	// First simulation in perfectly stable condition
-	simulations[0].status = 1;
-	simulations[0].bodies[0] = UIWrapper::GetBody()[0];
-	simulations[0].bodies[1] = UIWrapper::GetBody()[1];
-	simulations[0].bodies[2] = UIWrapper::GetBody()[2];
-
+	UIWrapper::stats = {};
+	for(int i = 0; i < 1; i++) {
+		simulations[i].status = 1;
+		simulations[i].bodies[0] = UIWrapper::GetBody()[0];
+		simulations[i].bodies[1] = UIWrapper::GetBody()[1];
+		simulations[i].bodies[2] = UIWrapper::GetBody()[2];
+	}
 	for(int i = 1; i < SIM_COUNT; i++) {
 		simulations[i].status = 1;
 		simulations[i].bodies[0] = UIWrapper::GetBody()[0];
 		simulations[i].bodies[1] = UIWrapper::GetBody()[1];
 		simulations[i].bodies[2] = UIWrapper::GetBody()[2];
-
 		// Monte Carlo
 		float noiseScale = 0.001f;
 
-		for(int b = 0; b < 3; b++) {
+		for(int b=0; b<3; b++) {
 			float x, y;
 			Random::RandomPointInUnitCircle(x, y);
 
 			simulations[i].bodies[b].x += x * noiseScale;
 			simulations[i].bodies[b].y += y * noiseScale;
+
+			// simulations[i].bodies[b].x += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
+			// simulations[i].bodies[b].y += (Random::GetFloat() * 2.0f - 1.0f) * noiseScale;
 		}
 	}
+
 
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, simBuffer);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Simulation) * simulations.size(), simulations.data(), GL_DYNAMIC_DRAW);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, simBuffer); // Binding 0 to match GLSL
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-	// Reset texture
-	glGenTextures(1, &trailTexture);
-	glBindTexture(GL_TEXTURE_2D, trailTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
+void ThreeBodyGL::Animate(int width, int height) {
+    static_assert(sizeof(Simulation) % 16 == 0);
+    std::cout << "Start Animating" << std::endl;
 
-void ThreeBodyGL::Animate() {
+    // 1. Initializare Textura
+    GLuint visualizationTexture;
+    glGenTextures(1, &visualizationTexture);
+    glBindTexture(GL_TEXTURE_2D, visualizationTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // 2. Initializare Buffer (IMPORTANT: Folosim variabila membra a clasei, nu una locala)
+    glGenBuffers(1, &this->simBuffer);
+
+    // 3. incarcare Shaders
+    GLuint computeProgram = CreateComputeProgram("Shaders/threeBody.comp");
+    GLuint evaporationComputeProgram = CreateComputeProgram("Shaders/trailEvaporation.comp");
+    GLuint fragmentShaderProgram = CreateShaderProgram("Shaders/defaultVertex.vert", "Shaders/threeBody.frag");
+
+    // Locatii Uniforms
+    int compTimeLoc = glGetUniformLocation(computeProgram, "time");
+    int diffuseRateLoc = glGetUniformLocation(evaporationComputeProgram, "diffuseRate");
+    int decayRateLoc = glGetUniformLocation(evaporationComputeProgram, "decayRate");
+    int evapCompDeltaTimeLoc = glGetUniformLocation(evaporationComputeProgram, "deltaTime");
+    int fragTextureLoc = glGetUniformLocation(fragmentShaderProgram, "visualizationTexture");
+    int fragTimeLoc = glGetUniformLocation(fragmentShaderProgram, "time");
+
+    // Configurare initiala Programe
+    glUseProgram(computeProgram);
+    glUniform1i(glGetUniformLocation(computeProgram, "width"), width);
+    glUniform1i(glGetUniformLocation(computeProgram, "height"), height);
+    glUniform1i(glGetUniformLocation(computeProgram, "simCount"), SIM_COUNT);
+    glUniform1f(glGetUniformLocation(computeProgram, "G"), 1.0f);
+    glUniform1f(glGetUniformLocation(computeProgram, "escapeThreshold"), 5.0f);
+    glUniform1f(glGetUniformLocation(computeProgram, "collisionThreshold"), 0.00001f);
+    glUniform1f(glGetUniformLocation(computeProgram, "deltaTime"), 0.0005f);
+
+    glUseProgram(evaporationComputeProgram);
+    glUniform1i(glGetUniformLocation(evaporationComputeProgram, "width"), width);
+    glUniform1i(glGetUniformLocation(evaporationComputeProgram, "height"), height);
+
+    glUseProgram(fragmentShaderProgram);
+    glUniform1i(glGetUniformLocation(fragmentShaderProgram, "width"), screenWidth);
+    glUniform1i(glGetUniformLocation(fragmentShaderProgram, "height"), screenHeight);
+
+    // 4. iNCaRCAREA INItIALa A DATELOR (Prevenim buffer-ul gol la primul cadru)
+    LoadData();
+    UIWrapper::restart = false;
+
+    auto fullscreenQuad = GetFullscreenQuad();
+    float prevTime = 0;
+    float lastStatTime = 0;
+
+    while(!glfwWindowShouldClose(window)) {
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        float currentTime = (float)glfwGetTime();
+        float deltaTime = currentTime - prevTime;
+        prevTime = currentTime;
+
+        int sl_timeStep = UIWrapper::Get_TimeStep();
+
+        // BUCLA DE SIMULARE
+        for(int i = 0; i < sl_timeStep; i++) {
+            // Step A: Three Body Physics
+            glUseProgram(computeProgram);
+            glUniform1f(compTimeLoc, currentTime);
+            glBindImageTexture(0, visualizationTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, simBuffer);
+            glDispatchCompute((SIM_COUNT + 255) / 256, 1, 1);
+
+            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+            // Step B: Trail Evaporation/Diffusion
+            glUseProgram(evaporationComputeProgram);
+            glUniform1f(diffuseRateLoc, UIWrapper::Get_DiffusionRate());
+            glUniform1f(decayRateLoc, UIWrapper::Get_DecayRate());
+            glUniform1f(evapCompDeltaTimeLoc, deltaTime);
+            glBindImageTexture(0, visualizationTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+            glDispatchCompute((width + 15) / 16, (height + 15) / 16, 1);
+
+            glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        }
+
+        // 5. CITIRE STATISTICI (O data pe secunda)
+        if(currentTime - lastStatTime >= 1.0f) {
+            lastStatTime = currentTime;
+
+            // Asigura-te ca GPU a terminat de scris inainte de citire
+            glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
+
+            std::vector<Simulation> cpuSimData(SIM_COUNT);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, simBuffer);
+
+            // Verificam daca bufferul e valid pe GPU
+            GLint actualBufferSize = 0;
+            glGetBufferParameteriv(GL_SHADER_STORAGE_BUFFER, GL_BUFFER_SIZE, &actualBufferSize);
+
+            if(actualBufferSize >= (GLint)(sizeof(Simulation) * SIM_COUNT)) {
+                glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Simulation) * SIM_COUNT, cpuSimData.data());
+                AnalyzeStatistics(cpuSimData);
+                // std::cout << "Stats read for " << SIM_COUNT << " simulations." << std::endl;
+            }
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        }
+
+        // 6. REDARE PE ECRAN
+        glUseProgram(fragmentShaderProgram);
+        glUniform1f(fragTimeLoc, currentTime);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, visualizationTexture);
+        glUniform1i(fragTextureLoc, 0);
+
+        glBindVertexArray(fullscreenQuad);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        // 7. UI ȘI RESTART
+        UIWrapper::Render(screenWidth, screenHeight);
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+
+        if(UIWrapper::restart) {
+            LoadData();
+            UIWrapper::restart = false;
+        }
+    }
+
+    // Cleanup
+    glDeleteBuffers(1, &simBuffer);
+    glDeleteTextures(1, &visualizationTexture);
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+}
+/*
+void ThreeBodyGL::Animate(int width, int height) {
+
+
+
 	static_assert(sizeof(Simulation) % 16 == 0);
 
-	Palette crntPalette = UIWrapper::GetPalette();
-	Palette targetPalette = crntPalette;
+	std::cout << "Start Animating" << std::endl;
+	struct Agent {
+		float posx, posy;
+		float angle;
+	};
 
-
-	glGenTextures(1, &trailTexture);
-	glBindTexture(GL_TEXTURE_2D, trailTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
+	GLuint visualizationTexture;
+	glGenTextures(1, &visualizationTexture);
+	glBindTexture(GL_TEXTURE_2D, visualizationTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glGenTextures(1, &bodiesTexture);
-	glBindTexture(GL_TEXTURE_2D, bodiesTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-
+	GLuint simBuffer;
 	glGenBuffers(1, &simBuffer);
 
 
 	GLuint computeProgram = CreateComputeProgram("Shaders/threeBody.comp");
 	glUseProgram(computeProgram);
-	glUniform1i(glGetUniformLocation(computeProgram, "width"), screenWidth);
-	glUniform1i(glGetUniformLocation(computeProgram, "height"), screenHeight);
+	glUniform1i(glGetUniformLocation(computeProgram, "width"), width);
+	glUniform1i(glGetUniformLocation(computeProgram, "height"), height);
 	glUniform1i(glGetUniformLocation(computeProgram, "simCount"), SIM_COUNT);
 	glUniform1f(glGetUniformLocation(computeProgram, "G"), 1.0f); // Constanta G
-	glUniform1f(glGetUniformLocation(computeProgram, "escapeThreshold"), 5.0f); // Distanța max
-	glUniform1f(glGetUniformLocation(computeProgram, "collisionThreshold"), 0.01f); // Distanța max
+	glUniform1f(glGetUniformLocation(computeProgram, "escapeThreshold"), 5.0f); // Distanta max
+	glUniform1f(glGetUniformLocation(computeProgram, "collisionThreshold"), 0.00001f); // Distanta max
 	glUniform1f(glGetUniformLocation(computeProgram, "deltaTime"), 0.0005f);
 	int compTimeLoc = glGetUniformLocation(computeProgram, "time");
 
 	GLuint evaporationComputeProgram = CreateComputeProgram("Shaders/trailEvaporation.comp");
 	glUseProgram(evaporationComputeProgram);
-	glUniform1i(glGetUniformLocation(evaporationComputeProgram, "width"), screenWidth);
-	glUniform1i(glGetUniformLocation(evaporationComputeProgram, "height"), screenHeight);
+	glUniform1i(glGetUniformLocation(evaporationComputeProgram, "width"), width);
+	glUniform1i(glGetUniformLocation(evaporationComputeProgram, "height"), height);
 	int evapCompDeltaTimeLoc = glGetUniformLocation(evaporationComputeProgram, "deltaTime");
 	int diffuseRateLoc = glGetUniformLocation(evaporationComputeProgram, "diffuseRate");
 	int decayRateLoc = glGetUniformLocation(evaporationComputeProgram, "decayRate");
 
 	auto fullscreenQuad = GetFullscreenQuad();
 	GLuint fragmentShaderProgram = CreateShaderProgram("Shaders/defaultVertex.vert", "Shaders/threeBody.frag");
-	int fragTextureLoc = glGetUniformLocation(fragmentShaderProgram, "trailTexture");
-	int fragBodiesTextureLoc = glGetUniformLocation(fragmentShaderProgram, "bodiesTexture");
+	int fragTextureLoc = glGetUniformLocation(fragmentShaderProgram, "visualizationTexture");
 	int fragWidthLoc = glGetUniformLocation(fragmentShaderProgram, "width");
 	int fragHeightLoc = glGetUniformLocation(fragmentShaderProgram, "height");
 	int fragTimeLoc = glGetUniformLocation(fragmentShaderProgram, "time");
-	int fragHideTrailLoc = glGetUniformLocation(fragmentShaderProgram, "hideTrail");
-	int fragB1ColLoc = glGetUniformLocation(fragmentShaderProgram, "body1Col");
-	int fragB2ColLoc = glGetUniformLocation(fragmentShaderProgram, "body2Col");
-	int fragB3ColLoc = glGetUniformLocation(fragmentShaderProgram, "body3Col");
 
 	glUseProgram(fragmentShaderProgram);
 	glUniform1i(fragWidthLoc, screenWidth);
@@ -161,33 +344,22 @@ void ThreeBodyGL::Animate() {
 
 	float prevTime = 0;
 	float deltaTime = 0;
-	float hideTrailLerp = 0;
+	float lastStatTime = 0;
+	int sl_timeStep = UIWrapper::Get_TimeStep();
 	UIWrapper::restart=true;
-	float clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	std::cout << "Start Animating" << std::endl;
 	while(!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT);
-		glClearTexImage(bodiesTexture, 0, GL_RGBA, GL_FLOAT, clearColor);
 
 		float currentTime = glfwGetTime();
 		deltaTime = currentTime - prevTime;
 		prevTime = currentTime;
 
-		// Interpolate between palettes
-		float colorLerpSpeed = 2.0f * deltaTime;
-		targetPalette = UIWrapper::GetPalette();
-		for(int i = 0; i < 3; i++) {
-			crntPalette.c1[i] += (targetPalette.c1[i] - crntPalette.c1[i]) * colorLerpSpeed;
-			crntPalette.c2[i] += (targetPalette.c2[i] - crntPalette.c2[i]) * colorLerpSpeed;
-			crntPalette.c3[i] += (targetPalette.c3[i] - crntPalette.c3[i]) * colorLerpSpeed;
-		}
-
-		for(int i = 0; i < UIWrapper::Get_TimeStep(); i++) {
+		sl_timeStep = UIWrapper::Get_TimeStep();
+		for(int i = 0; i < sl_timeStep; i++) {
 			glUseProgram(computeProgram);
 			glUniform1f(compTimeLoc, currentTime);
 
-			glBindImageTexture(0, trailTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-			glBindImageTexture(1, bodiesTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+			glBindImageTexture(0, visualizationTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, simBuffer);
 			glDispatchCompute((SIM_COUNT + 255) / 256, 1, 1);
 
@@ -197,26 +369,37 @@ void ThreeBodyGL::Animate() {
 			glUniform1f(diffuseRateLoc, UIWrapper::Get_DiffusionRate());
 			glUniform1f(decayRateLoc, UIWrapper::Get_DecayRate());
 			glUniform1f(evapCompDeltaTimeLoc, deltaTime);
-			glBindImageTexture(0, trailTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-			glDispatchCompute((screenWidth + 15) / 16, (screenHeight + 15) / 16, 1);
+			glBindImageTexture(0, visualizationTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+			glDispatchCompute((width + 15) / 16, (height + 15) / 16, 1);
 
 			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
 		}
+		/*
+
+		if(currentTime - lastStatTime >= 1.0f) {
+			lastStatTime = currentTime;
+			std::vector<Simulation> cpuSimData;
+			// 1. Mapam buffer-ul de pe GPU in RAM
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, simBuffer);
+			Simulation* ptr = (Simulation*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+
+			if(ptr) {
+				// 2. Copiem datele in vectorul nostru CPU
+				cpuSimData.assign(ptr, ptr + SIM_COUNT);
+				glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+			}
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+			// 3. Acum poti apela o functie de procesare statistici
+			//TODO AnalyzeStatistics(cpuSimData);
+		}
+
 
 		glUseProgram(fragmentShaderProgram);
 		glUniform1f(fragTimeLoc, currentTime);
-		hideTrailLerp = hideTrailLerp * (1.0f - deltaTime * 2.0f) + (UIWrapper::hideTrail ? 1.0f : 0.0f) * deltaTime * 2.0f;
-		glUniform1f(fragHideTrailLoc, hideTrailLerp);
-		glUniform3fv(fragB1ColLoc, 1, crntPalette.c1);
-		glUniform3fv(fragB2ColLoc, 1, crntPalette.c2);
-		glUniform3fv(fragB3ColLoc, 1, crntPalette.c3);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, trailTexture);
+		glBindTexture(GL_TEXTURE_2D, visualizationTexture);
 		glUniform1i(fragTextureLoc, 0);
-
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, bodiesTexture);
-		glUniform1i(fragBodiesTextureLoc, 1);
 
 		glBindVertexArray(fullscreenQuad);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -235,6 +418,7 @@ void ThreeBodyGL::Animate() {
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 }
+*/
 
 GLuint ThreeBodyGL::LoadShader(GLenum type, const char* path) {
 	std::ifstream file(path);
@@ -364,3 +548,4 @@ GLuint ThreeBodyGL::GetFullscreenQuad() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	return quadVAO;
 }
+
