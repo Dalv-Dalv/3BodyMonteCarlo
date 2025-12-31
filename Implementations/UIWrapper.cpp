@@ -21,6 +21,7 @@ float UIWrapper::sl_alpha = 0.05f;
 float UIWrapper::sl_epsilon = 0.05f;
 int UIWrapper::ui_SIM_COUNT = 748;
 int UIWrapper::calculatedN = 748;
+int UIWrapper::sl_stepMethod = 1;
 
 Body UIWrapper::initialBody[3] = {{0.2f, 0.0f, 0.0f, 0.161f, 1.0f, 1.0f, 0, 0}, {-0.2f, 0.0f, 0.0f, -0.161f, 1.0f, 0, 1.0f, 0}, {0.0f, 0.346f, -0.161f, 0.0f, 1.0f, 0, 0, 1.0f}};
 
@@ -225,6 +226,10 @@ void UIWrapper::MonteCarloDashboard() {
 	ImGui::SameLine(); HelpMarker("Epsilon este eroarea maxima acceptata. 0.01 inseamna o precizie de +/- 1%.");
 
 	ImGui::BulletText("Recommended N for these settings: %d", calculatedN);
+
+	const char* methods[] = { "Explicit Euler", "Semi-Implicit Euler", "Velocity Verlet" };
+	ImGui::Combo("Integration Method", &sl_stepMethod, methods, IM_ARRAYSIZE(methods));
+	ImGui::SameLine(); HelpMarker("Verlet este cel mai precis pentru orbite lungi.");
 
 	if (ImGui::Button("Apply Settings & Restart Simulation")) {
 		ui_SIM_COUNT = calculatedN; // Setam noul numar de simulari

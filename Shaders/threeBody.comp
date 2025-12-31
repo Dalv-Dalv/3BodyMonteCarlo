@@ -11,6 +11,7 @@ uniform float deltaTime;
 uniform float G;
 uniform float escapeThreshold; // Distanta
 uniform float collisionThreshold; // Distanta
+uniform int stepMethod;
 
 struct Body {
     float x, y, vx, vy;
@@ -43,6 +44,18 @@ void drawBodyAt(ivec2 pos, vec4 col) {
         }
     }
 }
+
+// Functie pentru calcularea acceleratiei unui corp
+vec2 getAcceleration(vec2 pos, vec2 otherPos1, vec2 otherPos2, float m1, float m2) {
+    float eps = 0.001; // Softening factor
+    vec2 r1 = otherPos1 - pos;
+    vec2 r2 = otherPos2 - pos;
+
+    vec2 a = G * m1 * r1 / pow(length(r1) + eps, 3.0);
+    a += G * m2 * r2 / pow(length(r2) + eps, 3.0);
+    return a;
+}
+
 
 void main() {
     uint idx = gl_GlobalInvocationID.x;
@@ -92,41 +105,49 @@ void main() {
         return;
     }
 
-    float eps = 0.01;
+    vec2 p[3] = {pos0, pos1, pos2};
+    vec2 v[3] = {vel0, vel1, vel2};
+    float m[3] = {m0, m1, m2};
+    vec2 a[3];
 
-    vec2 r01 = pos1 - pos0;
-    vec2 r02 = pos2 - pos0;
-    vec2 r12 = pos2 - pos1;
-    vec2 r10 = pos0 - pos1;
-    vec2 r20 = pos0 - pos2;
-    vec2 r21 = pos1 - pos2;
+    if (stepMethod == 0) {
+        // --- EXPLICIT EULER ---
+        for(int i=0; i<3; i++) a[i] = getAcceleration(p[i], p[(i+1)%3], p[(i+2)%3], m[(i+1)%3], m[(i+2)%3]);
+        for(int i=0; i<3; i++) {
+            p[i] += v[i] * deltaTime; // Pozitia folosind viteza veche
+            v[i] += a[i] * deltaTime;
+        }
+    }
+    else if (stepMethod == 1) {
+        // --- SEMI-IMPLICIT EULER (Euler-Cromer) ---
+        for(int i=0; i<3; i++) a[i] = getAcceleration(p[i], p[(i+1)%3], p[(i+2)%3], m[(i+1)%3], m[(i+2)%3]);
+        for(int i=0; i<3; i++) {
+            v[i] += a[i] * deltaTime; // Update viteza prima data
+            p[i] += v[i] * deltaTime; // Update pozitie folosind VITEZA NOUa
+        }
+    }
+    else if (stepMethod == 2) {
+        // --- VELOCITY VERLET ---
+        vec2 a_old[3];
+        for(int i=0; i<3; i++) a_old[i] = getAcceleration(p[i], p[(i+1)%3], p[(i+2)%3], m[(i+1)%3], m[(i+2)%3]);
 
-    vel0 += G * deltaTime * m1 / pow(length(r01) + eps, 3.0) * r01;
-    vel0 += G * deltaTime * m2 / pow(length(r02) + eps, 3.0) * r02;
+        // 1. Update pozitie
+        for(int i=0; i<3; i++) p[i] += v[i] * deltaTime + 0.5 * a_old[i] * deltaTime * deltaTime;
 
-    vel1 += G * deltaTime * m0 / pow(length(r10) + eps, 3.0) * r10;
-    vel1 += G * deltaTime * m2 / pow(length(r12) + eps, 3.0) * r12;
+        // 2. Calcul acceleratie noua (bazata pe pozitiile noi)
+        for(int i=0; i<3; i++) a[i] = getAcceleration(p[i], p[(i+1)%3], p[(i+2)%3], m[(i+1)%3], m[(i+2)%3]);
 
-    vel2 += G * deltaTime * m1 / pow(length(r21) + eps, 3.0) * r21;
-    vel2 += G * deltaTime * m0 / pow(length(r20) + eps, 3.0) * r20;
+        // 3. Update viteza
+        for(int i=0; i<3; i++) v[i] += 0.5 * (a_old[i] + a[i]) * deltaTime;
+    }
 
-    simulations[idx].bodies[0].vx = vel0.x;
-    simulations[idx].bodies[0].vy = vel0.y;
-
-    simulations[idx].bodies[1].vx = vel1.x;
-    simulations[idx].bodies[1].vy = vel1.y;
-
-    simulations[idx].bodies[2].vx = vel2.x;
-    simulations[idx].bodies[2].vy = vel2.y;
-
-    simulations[idx].bodies[0].x += (vel0 * deltaTime).x;
-    simulations[idx].bodies[0].y += (vel0 * deltaTime).y;
-
-    simulations[idx].bodies[1].x += (vel1 * deltaTime).x;
-    simulations[idx].bodies[1].y += (vel1 * deltaTime).y;
-
-    simulations[idx].bodies[2].x += (vel2 * deltaTime).x;
-    simulations[idx].bodies[2].y += (vel2 * deltaTime).y;
+    // Salvare inapoi in buffer
+    for(int i=0; i<3; i++) {
+        simulations[idx].bodies[i].x = p[i].x;
+        simulations[idx].bodies[i].y = p[i].y;
+        simulations[idx].bodies[i].vx = v[i].x;
+        simulations[idx].bodies[i].vy = v[i].y;
+    }
 
     vec2 center = vec2(width, height) / 2.0;
     float scale = min(width, height) / 4.0;

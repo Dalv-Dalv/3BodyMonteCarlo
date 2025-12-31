@@ -192,6 +192,8 @@ void ThreeBodyGL::Animate() {
 	glUniform1f(glGetUniformLocation(computeProgram, "escapeThreshold"), 5.0f); // Distanța max
 	glUniform1f(glGetUniformLocation(computeProgram, "collisionThreshold"), 0.01f); // Distanța max
 	glUniform1f(glGetUniformLocation(computeProgram, "deltaTime"), 0.0005f);
+	glUniform1f(glGetUniformLocation(computeProgram, "stepMethod"), 1);
+	// 0
 	int compTimeLoc = glGetUniformLocation(computeProgram, "time");
 
 	GLuint evaporationComputeProgram = CreateComputeProgram("Shaders/trailEvaporation.comp");

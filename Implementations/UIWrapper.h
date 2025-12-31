@@ -63,6 +63,8 @@ public:
 	static float customCol2[3];
 	static float customCol3[3];
 
+	static int sl_stepMethod;
+
 	static void Initialize(GLFWwindow* window);
 	static void applyPreset(int preset);
 	static void Render(int screenWidth, int screenHeight);
