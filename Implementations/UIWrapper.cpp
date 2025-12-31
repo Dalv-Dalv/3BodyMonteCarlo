@@ -127,6 +127,7 @@ void UIWrapper::Render(int screenWidth, int screenHeight) {
 		ImGui::ColorEdit3(("Color##" + std::to_string(i)).c_str(), colorPtr);
 	}
 	if(ImGui::Button("Start Sim")) {
+		ui_SIM_COUNT = calculatedN;
 		restart = true;
 	};
 	const char* presets[] = {"Something", "Lagrange Equilateral triangle", "8 figure", "Random stable-ish"};
@@ -193,12 +194,12 @@ void UIWrapper::MonteCarloDashboard() {
 	ImGui::Text("=== MONTE CARLO SETUP (Theoretic) ===");
 
     // Slidere pentru controlul parametrilor statistici
-	if (ImGui::SliderFloat("Confidence Alpha (a)", &sl_alpha, 0.001f, 0.2f, "%.3f")) {
+	if (ImGui::SliderFloat("Confidence Alpha (a)", &sl_alpha, 0.001f, 0.9f, "%.3f")) {
 		CalculateRequiredN();
 	}
 	ImGui::SameLine(); HelpMarker("Alpha este probabilitatea de a gresi. 0.05 inseamna ca suntem 95% siguri de rezultat.");
 
-	if (ImGui::SliderFloat("Error Margin (e)", &sl_epsilon, 0.005f, 0.1f, "%.3f")) {
+	if (ImGui::SliderFloat("Error Margin (e)", &sl_epsilon, 0.005f, 0.2f, "%.3f")) {
 		CalculateRequiredN();
 	}
 	ImGui::SameLine(); HelpMarker("Epsilon este eroarea maxima acceptata. 0.01 inseamna o precizie de +/- 1%.");
