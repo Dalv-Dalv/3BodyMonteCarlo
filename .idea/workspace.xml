@@ -36,8 +36,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dfe77bcc-4f66-495f-82e1-a584774e14f1" name="Changes" comment="Fixes Equalateral triangle">
+    <list default="true" id="dfe77bcc-4f66-495f-82e1-a584774e14f1" name="Changes" comment="Added new initial setups">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Implementations/ThreeBodyGL.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Implementations/ThreeBodyGL.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Implementations/UIWrapper.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Implementations/UIWrapper.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -272,7 +273,7 @@
       <workItem from="1767201328137" duration="39000" />
       <workItem from="1767873194401" duration="179000" />
       <workItem from="1767960504756" duration="7000" />
-      <workItem from="1768212537161" duration="830000" />
+      <workItem from="1768212537161" duration="1599000" />
     </task>
     <task id="LOCAL-00001" summary="Nicer UI and predeterminated stable states">
       <option name="closed" value="true" />
@@ -290,7 +291,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767035032337</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Added new initial setups">
+      <option name="closed" value="true" />
+      <created>1768213700869</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1768213700869</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -315,7 +324,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Nicer UI and predeterminated stable states" />
     <MESSAGE value="Fixes Equalateral triangle" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixes Equalateral triangle" />
+    <MESSAGE value="Added new initial setups" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added new initial setups" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
