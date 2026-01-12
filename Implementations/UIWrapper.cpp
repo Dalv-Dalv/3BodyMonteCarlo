@@ -72,12 +72,14 @@ void UIWrapper::Initialize(GLFWwindow* window) {
 }
 void UIWrapper::applyPreset(int preset) {
 	switch (preset) {
-
-	case 0:
-		initialBody[0]={ 0.2f, 0.0f, 0.0f, 0.161f, 1.0f, 1.0f, 0, 0};
-		initialBody[1]={ -0.2f, 0.0f, 0.0f, -0.161f, 1.0f, 0, 1.0f, 0};
-		initialBody[2]={ 0.0f, 0.346f, -0.161f, 0.0f, 1.0f, 0, 0, 1.0f};
+	// X Y VX VY maxx R G B
+	case 0: {
+		float speed=2.35;
+		initialBody[0] = { 0, 0, 0, 0, 1, 1.0f, 1.0f, 1.0f};
+		initialBody[1] = { 0.2, 0, 0, speed, 1.0f, 0.0f, 1.0f, 0.0f};
+		initialBody[2] = { -0.2, 0, 0, -speed, 1.0f, 0.0f, 0.0f, 1.0f};
 		break;
+	}
 	case 1:
 		{
 		float mult=1.4;
@@ -227,7 +229,7 @@ void UIWrapper::MonteCarloDashboard() {
 
 	ImGui::BulletText("Recommended N for these settings: %d", calculatedN);
 
-	const char* methods[] = { "Explicit Euler", "Semi-Implicit Euler", "Velocity Verlet" };
+	const char* methods[] = { "Explicit Euler", "Semi-Implicit Euler", "Velocity Verlet","Stefan s euler"};
 	ImGui::Combo("Integration Method", &sl_stepMethod, methods, IM_ARRAYSIZE(methods));
 	ImGui::SameLine(); HelpMarker("Verlet este cel mai precis pentru orbite lungi.");
 

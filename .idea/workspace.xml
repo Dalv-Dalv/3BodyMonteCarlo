@@ -13,7 +13,6 @@
     <option name="/Default/Housekeeping/Search/HighlightUsagesHintUsed/@EntryValue" value="true" type="bool" />
     <option name="/Default/Housekeeping/RefactoringsMru/RenameRefactoring/DoSearchForTextInStrings/@EntryValue" value="true" type="bool" />
     <option name="/Default/Housekeeping/LiveTemplatesHousekeeping/HotspotSessionHintIsShown/@EntryValue" value="true" type="bool" />
-    <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexRemoved" />
   </component>
   <component name="CMakePresetLoader">{
   &quot;useNewFormat&quot;: true
@@ -37,10 +36,13 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dfe77bcc-4f66-495f-82e1-a584774e14f1" name="Changes" comment="Fixes Equalateral triangle">
+    <list default="true" id="dfe77bcc-4f66-495f-82e1-a584774e14f1" name="Changes" comment="Fixes threeBody compute shader code">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Implementations/ThreeBodyGL.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Implementations/ThreeBodyGL.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Implementations/UIWrapper.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Implementations/UIWrapper.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Shaders/threeBody.comp" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/threeBody.comp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utils/Random.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Utils/Random.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utils/Random.h" beforeDir="false" afterPath="$PROJECT_DIR$/Utils/Random.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +73,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Dalv-Dalv/3BodyMonteCarlo.git&quot;,
-    &quot;accountId&quot;: &quot;7fd0865a-2e87-4cc3-a86d-06d930fa82e7&quot;
+    &quot;accountId&quot;: &quot;f132e674-2df6-4ea3-bc6b-54658e8a0fb4&quot;
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
@@ -273,6 +275,12 @@
       <workItem from="1767186351302" duration="8746000" />
       <workItem from="1767196653951" duration="611000" />
       <workItem from="1767207623102" duration="7731000" />
+      <workItem from="1767890566892" duration="1352000" />
+      <workItem from="1767903930591" duration="1396000" />
+      <workItem from="1767993264344" duration="440000" />
+      <workItem from="1767995568132" duration="550000" />
+      <workItem from="1767996321018" duration="679000" />
+      <workItem from="1768213546686" duration="1620000" />
     </task>
     <task id="LOCAL-00001" summary="Nicer UI and predeterminated stable states">
       <option name="closed" value="true" />

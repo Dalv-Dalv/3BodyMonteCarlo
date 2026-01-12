@@ -140,11 +140,31 @@ void main() {
         // 3. Update viteza
         for(int i=0; i<3; i++) v[i] += 0.5 * (a_old[i] + a[i]) * deltaTime;
     }
+    else if (stepMethod==3){
+
+        v[0]+=G*deltaTime*m[1]/dot((p[1]-p[0]),(p[1]-p[0]))*normalize(p[1]-p[0]);
+        v[0]+=G*deltaTime*m[2]/dot((p[2]-p[0]),(p[2]-p[0]))*normalize(p[2]-p[0]);
+
+        v[1]+=G*deltaTime*m[0]/dot((p[0]-p[1]),(p[0]-p[1]))*normalize(p[0]-p[1]);
+        v[1]+=G*deltaTime*m[2]/dot((p[2]-p[1]),(p[2]-p[1]))*normalize(p[2]-p[1]);
+
+        v[2]+=G*deltaTime*m[0]/dot((p[0]-p[2]),(p[0]-p[2]))*normalize(p[0]-p[2]);
+        v[2]+=G*deltaTime*m[1]/dot((p[1]-p[2]),(p[1]-p[2]))*normalize(p[1]-p[2]);
+
+       // simulations[idx].bodies[0].vel = vel0;
+       // simulations[idx].bodies[1].vel = vel1;
+       // simulations[idx].bodies[2].vel = vel2;
+
+        //simulations[idx].bodies[0].pos += vel0 * deltaTime;
+        //simulations[idx].bodies[1].pos += vel1 * deltaTime;
+        //simulations[idx].bodies[2].pos += vel2 * deltaTime;
+
+    }
 
     // Salvare inapoi in buffer
     for(int i=0; i<3; i++) {
-        simulations[idx].bodies[i].x = p[i].x;
-        simulations[idx].bodies[i].y = p[i].y;
+        simulations[idx].bodies[i].x = p[i].x*deltaTime;
+        simulations[idx].bodies[i].y = p[i].y*deltaTime;
         simulations[idx].bodies[i].vx = v[i].x;
         simulations[idx].bodies[i].vy = v[i].y;
     }

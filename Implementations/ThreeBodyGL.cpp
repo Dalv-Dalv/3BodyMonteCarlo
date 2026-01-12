@@ -130,7 +130,7 @@ void ThreeBodyGL::LoadData() {
 		simulations[i].bodies[2] = UIWrapper::GetBody()[2];
 
 		// Monte Carlo
-		float noiseScale = 0.001f;
+		float noiseScale = 0.00001f;
 
 		for(int b = 0; b < 3; b++) {
 			float x, y;

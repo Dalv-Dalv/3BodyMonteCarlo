@@ -3,20 +3,19 @@
 
 class Random {
 public:
-	static Random* instance;
+    static Random* instance;
 
-	Random();
-	Random(const Random&) = delete;
-	Random& operator=(const Random&) = delete;
+    Random();
+    Random(const Random&) = delete;
+    Random& operator=(const Random&) = delete;
 
-	static float GetFloat(float min=0,float max=1);
-	static int64_t GetInt(int64_t min, int64_t max);
-	static void RandomPointInUnitCircle(float& x, float& y);
-
+    static float GetFloat(float min=0,float max=1);
+    static int64_t GetInt(int64_t min,int64_t max);
+	static void RandomPointInUnitCircle(float&x,float&y);
 private:
-	std::random_device dev;
-	std::mt19937 rng;
-	std::uniform_real_distribution<float> dist;
+    std::random_device dev;
+    std::mt19937 rng;
+    std::uniform_real_distribution<float> dist;
 
-	static void CreateInstance();
+    static void CreateInstance();
 };
