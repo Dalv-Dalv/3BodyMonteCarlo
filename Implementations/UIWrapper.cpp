@@ -16,14 +16,17 @@ bool UIWrapper::key_pressed = false;
 int UIWrapper::sl_timeStep = 1;
 float UIWrapper::sl_trailWeight = 0.5;
 float UIWrapper::sl_diffusionRate = 1.0;
-float UIWrapper::sl_decayRate = 0.02;
+float UIWrapper::sl_decayRate = 0.005;
 float UIWrapper::sl_alpha = 0.05f;
 float UIWrapper::sl_epsilon = 0.05f;
 int UIWrapper::ui_SIM_COUNT = 748;
 int UIWrapper::calculatedN = 748;
 int UIWrapper::sl_stepMethod = 1;
 
-Body UIWrapper::initialBody[3] = {{0.2f, 0.0f, 0.0f, 0.161f, 1.0f, 1.0f, 0, 0}, {-0.2f, 0.0f, 0.0f, -0.161f, 1.0f, 0, 1.0f, 0}, {0.0f, 0.346f, -0.161f, 0.0f, 1.0f, 0, 0, 1.0f}};
+Body UIWrapper::initialBody[3] = {
+	{0.0f,      1.1547f,  -0.5f*1.4f,     0.0f, 1.0f, 1.0f, 0, 0},
+	{-1.0f,      -0.5773f,  0.25f*1.4f,    -0.433f*1.4f, 1.0f, 0, 1.0f, 0},
+	{1.0f,      -0.5773f,  0.25f*1.4f,     0.433f*1.4f, 1.0f, 0, 0, 1.0f}};
 
 SimStats UIWrapper::stats;
 bool UIWrapper::enableFpsCap = true;
@@ -72,31 +75,33 @@ void UIWrapper::Initialize(GLFWwindow* window) {
 }
 void UIWrapper::applyPreset(int preset) {
 	switch (preset) {
-	// X Y VX VY maxx R G B
+
 	case 0: {
-		float speed=2.35;
-		initialBody[0] = { 0, 0, 0, 0, 1, 1.0f, 1.0f, 1.0f};
-		initialBody[1] = { 0.2, 0, 0, speed, 1.0f, 0.0f, 1.0f, 0.0f};
-		initialBody[2] = { -0.2, 0, 0, -speed, 1.0f, 0.0f, 0.0f, 1.0f};
-		break;
-	}
-	case 1:
-		{
 		float mult=1.4;
 		initialBody[0] = {  0.0f,      1.1547f,  -0.5f*mult,     0.0f*mult,     1.0f, 1.0f, 0, 0};
 		initialBody[1] = { -1.0f,      -0.5773f,  0.25f*mult,    -0.433f*mult,  1.0f, 0, 1.0f, 0};
 		initialBody[2] = {  1.0f,      -0.5773f,  0.25f*mult,     0.433f*mult,  1.0f, 0, 0, 1.0f};
 		break;
 	}
+	case 1:
+		initialBody[0]={-1, 0, 0.3471168881f,0.5327249454f,  1.0f, 1.0f, 0, 0};
+		initialBody[1]={1, 0, 0.3471168881f,0.5327249454f, 1.0f, 0, 1.0f, 0};
+		initialBody[2]={0, 0, -0.6942337762,-1.0654498908, 1.0f, 0, 0, 1.0f};
+		break;
 	case 2:
-		initialBody[0]={0.97000436, -0.24308753, 0.466203685, 0.43236573,  1.0f, 1.0f, 0, 0};
-		initialBody[1]={-0.97000436, 0.24308753, 0.466203685, 0.43236573, 1.0f, 0, 1.0f, 0};
-		initialBody[2]={0, 0, -2*0.466203685, -2*0.43236573, 1.0f, 0, 0, 1.0f};
+		initialBody[0] = { -1,0, 0.513938f,0.304736f, 1, 1.0f, 0.0f, 0.0f };
+		initialBody[1] = { 1,0, 0.513938f,0.304736f, 1, 0.0f, 1.0f, 0.0f };
+		initialBody[2] = { 0,0, -1.027876f,-0.609472f, 1, 0.0f, 0.0f, 1.0f };
 		break;
 	case 3:
-		initialBody[0] = { -1,0, 0.2374365149,0.2536896353, 1, 1.0f, 0.0f, 0.0f };
-		initialBody[1] = { 1,0, 0.2374365149,0.2536896353, 1, 0.0f, 1.0f, 0.0f };
-		initialBody[2] = { 0,0, -0.9497460596,-1.0147585412, 0.5, 0.0f, 0.0f, 1.0f };
+		initialBody[0] = { -1,0, 0.2374365149f,0.2536896353f, 1, 1.0f, 0.0f, 0.0f };
+		initialBody[1] = { 1,0, 0.2374365149f,0.2536896353f, 1, 0.0f, 1.0f, 0.0f };
+		initialBody[2] = { 0,0, -0.9497460596f,-1.0147585412f, 0.5, 0.0f, 0.0f, 1.0f };
+		break;
+	case 4:
+		initialBody[0] = { -1,0, 0.7583850283f,0.9342270211f, 1, 1.0f, 0.0f, 0.0f };
+		initialBody[1] = { 1,0, 0.7583850283f,0.9342270211f, 1, 0.0f, 1.0f, 0.0f };
+		initialBody[2] = { 0,0, -0.7583850283f,-0.9342270211f, 2, 0.0f, 0.0f, 1.0f };
 		break;
 	default:;
 	}
@@ -141,7 +146,7 @@ void UIWrapper::Render(int screenWidth, int screenHeight) {
 		ui_SIM_COUNT = calculatedN;
 		restart = true;
 	};
-	const char* presets[] = {"Something", "Lagrange Equilateral triangle", "Infinity", "Random stable-ish"};
+	const char* presets[] = {"Lagrange Equilateral Triangle", "Infinity", "Yin-Yang", "Isosceles Collinear", "Buildup"};
 	static int currentPreset = 0;
 
 	if(ImGui::Combo("Preset", &currentPreset, presets, IM_ARRAYSIZE(presets))) {
@@ -229,7 +234,7 @@ void UIWrapper::MonteCarloDashboard() {
 
 	ImGui::BulletText("Recommended N for these settings: %d", calculatedN);
 
-	const char* methods[] = { "Explicit Euler", "Semi-Implicit Euler", "Velocity Verlet","Stefan s euler"};
+	const char* methods[] = { "Explicit Euler", "Semi-Implicit Euler", "Velocity Verlet" };
 	ImGui::Combo("Integration Method", &sl_stepMethod, methods, IM_ARRAYSIZE(methods));
 	ImGui::SameLine(); HelpMarker("Verlet este cel mai precis pentru orbite lungi.");
 

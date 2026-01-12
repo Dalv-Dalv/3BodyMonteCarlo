@@ -115,7 +115,7 @@ ThreeBodyGL::~ThreeBodyGL() {
 void ThreeBodyGL::LoadData() {
 	simCount = UIWrapper::ui_SIM_COUNT;
 	UIWrapper::stats = {};
-	std::vector<Simulation> simulations(simCount);
+	std::vector<Simulation> simulations(simCount + 1);
 
 	// First simulation in perfectly stable condition
 	simulations[0].status = 1;
