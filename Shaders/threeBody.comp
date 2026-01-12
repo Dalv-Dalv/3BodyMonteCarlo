@@ -47,7 +47,7 @@ void drawBodyAt(ivec2 pos, vec4 col) {
 
 // Functie pentru calcularea acceleratiei unui corp
 vec2 getAcceleration(vec2 pos, vec2 otherPos1, vec2 otherPos2, float m1, float m2) {
-    float eps = 0.01; // Softening factor
+    float eps = 0.001; // Softening factor
     vec2 r1 = otherPos1 - pos;
     vec2 r2 = otherPos2 - pos;
 
@@ -151,20 +151,16 @@ void main() {
         v[2]+=G*deltaTime*m[0]/dot((p[0]-p[2]),(p[0]-p[2]))*normalize(p[0]-p[2]);
         v[2]+=G*deltaTime*m[1]/dot((p[1]-p[2]),(p[1]-p[2]))*normalize(p[1]-p[2]);
 
-       // simulations[idx].bodies[0].vel = vel0;
-       // simulations[idx].bodies[1].vel = vel1;
-       // simulations[idx].bodies[2].vel = vel2;
-
-        //simulations[idx].bodies[0].pos += vel0 * deltaTime;
-        //simulations[idx].bodies[1].pos += vel1 * deltaTime;
-        //simulations[idx].bodies[2].pos += vel2 * deltaTime;
+        p[0]+= v[0] * deltaTime;
+        p[1]+= v[1] * deltaTime;
+        p[2]+= v[2] * deltaTime;
 
     }
 
     // Salvare inapoi in buffer
     for(int i=0; i<3; i++) {
-        simulations[idx].bodies[i].x = p[i].x*deltaTime;
-        simulations[idx].bodies[i].y = p[i].y*deltaTime;
+        simulations[idx].bodies[i].x = p[i].x;
+        simulations[idx].bodies[i].y = p[i].y;
         simulations[idx].bodies[i].vx = v[i].x;
         simulations[idx].bodies[i].vy = v[i].y;
     }
