@@ -47,7 +47,7 @@ void drawBodyAt(ivec2 pos, vec4 col) {
 
 // Functie pentru calcularea acceleratiei unui corp
 vec2 getAcceleration(vec2 pos, vec2 otherPos1, vec2 otherPos2, float m1, float m2) {
-    float eps = 0.001; // Softening factor
+    float eps = 0.01; // Softening factor
     vec2 r1 = otherPos1 - pos;
     vec2 r2 = otherPos2 - pos;
 

@@ -98,11 +98,6 @@ void UIWrapper::applyPreset(int preset) {
 		initialBody[1] = { 1,0, 0.2374365149f,0.2536896353f, 1, 0.0f, 1.0f, 0.0f };
 		initialBody[2] = { 0,0, -0.9497460596f,-1.0147585412f, 0.5, 0.0f, 0.0f, 1.0f };
 		break;
-	case 4:
-		initialBody[0] = { -1,0, 0.7583850283f,0.9342270211f, 1, 1.0f, 0.0f, 0.0f };
-		initialBody[1] = { 1,0, 0.7583850283f,0.9342270211f, 1, 0.0f, 1.0f, 0.0f };
-		initialBody[2] = { 0,0, -0.7583850283f,-0.9342270211f, 2, 0.0f, 0.0f, 1.0f };
-		break;
 	default:;
 	}
 }
@@ -146,7 +141,7 @@ void UIWrapper::Render(int screenWidth, int screenHeight) {
 		ui_SIM_COUNT = calculatedN;
 		restart = true;
 	};
-	const char* presets[] = {"Lagrange Equilateral Triangle", "Infinity", "Yin-Yang", "Isosceles Collinear", "Buildup"};
+	const char* presets[] = {"Lagrange Equilateral Triangle", "Infinity", "Yin-Yang", "Isosceles Collinear"};
 	static int currentPreset = 0;
 
 	if(ImGui::Combo("Preset", &currentPreset, presets, IM_ARRAYSIZE(presets))) {
@@ -234,7 +229,7 @@ void UIWrapper::MonteCarloDashboard() {
 
 	ImGui::BulletText("Recommended N for these settings: %d", calculatedN);
 
-	const char* methods[] = { "Explicit Euler", "Semi-Implicit Euler", "Velocity Verlet" };
+	const char* methods[] = { "Explicit Euler", "Semi-Implicit Euler", "Velocity Verlet", "Euler" };
 	ImGui::Combo("Integration Method", &sl_stepMethod, methods, IM_ARRAYSIZE(methods));
 	ImGui::SameLine(); HelpMarker("Verlet este cel mai precis pentru orbite lungi.");
 
